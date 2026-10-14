@@ -1,22 +1,42 @@
-# 50 Startups: Multiple Linear Regression & Feature Selection Explorer
+# 50 Startups: Multiple Linear Regression & Feature Selection Explorer (Flask Web App)
 
-An interactive machine learning and statistical inference platform built following the **CRISP-DM** (Cross-Industry Standard Process for Data Mining) methodology. This project evaluates **Multiple Linear Regression (OLS)** against **5 distinct feature selection algorithms** to uncover the optimal feature subset for predicting startup profitability while guarding against multicollinearity and overfitting.
+An interactive machine learning, statistical inference, and full-stack web platform built with the **Flask framework** and following the **CRISP-DM** (Cross-Industry Standard Process for Data Mining) methodology.
+
+This project evaluates **Multiple Linear Regression (OLS)** against **5 distinct feature selection algorithms** to uncover the optimal feature subset for predicting startup profitability while guarding against multicollinearity and overfitting.
 
 ---
 
-## 🌐 Interactive Web Application & Live Demo
+## 🌐 Flask Web Application & Live Demo
 
-The project includes a web application inspired by the statistical calculator layout of [StatsUnlock](https://statsunlock.com/multiple-linear-regression-calculator/).
+The web application is styled with the professional SaaS statistical calculator layout inspired by [StatsUnlock](https://statsunlock.com/multiple-linear-regression-calculator/).
 
-### How to Run Locally:
-1. **Local Server (Active)**:
+### How to Run Locally with Flask:
+1. **Install Dependencies**:
    ```bash
-   python -m http.server 8080
+   pip install -r requirements.txt
    ```
-   Open your browser and navigate to: **[http://localhost:8080/](http://localhost:8080/)**
 
-2. **Standalone Access**:
-   You can also open [`index.html`](file:///d:/Huan%20Chen/AIoT2026/L5-1%2050%20startup/index.html) directly in any web browser without needing any backend server!
+2. **Start the Flask Application**:
+   ```bash
+   python app.py
+   ```
+   Open your browser and navigate to: **[http://localhost:5000/](http://localhost:5000/)**
+
+### Flask REST API Endpoints:
+- `GET /`: Renders the main interactive regression explorer dashboard.
+- `GET /api/models`: Returns the complete 5-algorithm feature selection evaluation data ($k=1 \dots 5$).
+- `POST /api/predict`: Live inference endpoint calculating predicted profit and formula contribution breakdown:
+  ```json
+  {
+    "algo": "Lasso",
+    "k": 2,
+    "rd_spend": 100000,
+    "marketing_spend": 150000,
+    "admin_spend": 120000,
+    "state": "California"
+  }
+  ```
+- `GET /api/summary`: Returns summary metrics across all algorithms.
 
 ### Key Web App Features:
 - **Algorithm Switcher**: Switch dynamically between Lasso (L1), Forward SFS, RFE, ElasticNet, Exhaustive Search, or **Compare All 5 Simultaneously**.
@@ -57,61 +77,41 @@ All 5 methods were benchmarked across $k=1 \dots 5$ features on the out-of-sampl
 | **ElasticNet Ranking** | $8,274.87 | **$8,198.80** | $8,803.78 | $8,997.20 | $9,137.99 | `['R&D Spend', 'Marketing Spend']` |
 | **Exhaustive (Best Subset)** | $8,274.87 | $8,198.80 | **$8,171.65** | $8,178.37 | $9,137.99 | `['R&D Spend', 'Admin', 'State_FL']` |
 
-*(Note: While Exhaustive Search finds a marginal in-sample reduction at $k=3$, the 2-feature subset is universally favored for simplicity and stability.)*
-
 ---
 
 ## 📁 Repository Structure
 
 ```text
-├── index.html                           # Modern interactive web application (StatsUnlock style)
-├── model_data.js                        # Structured model inference & statistical coefficients
-├── model_data.json                      # Machine-readable JSON export of all statistical results
-├── main.py                              # CRISP-DM end-to-end multiple linear regression script
-├── feature_progression_analysis.py      # Automated script generating k=1..5 metrics and plots
-├── requirements.txt                     # Python package dependencies
-├── all_5_algorithms_comparison_plot.png # Visual comparison across all 5 methods
-├── lasso_l1_ranking_plot.png            # Dual-panel RMSE & R² plot for Lasso
-├── forward_sfs_plot.png                 # Dual-panel RMSE & R² plot for Forward SFS
-├── rfe_plot.png                         # Dual-panel RMSE & R² plot for RFE
-├── elasticnet_ranking_plot.png          # Dual-panel RMSE & R² plot for ElasticNet
-├── exhaustive_search_plot.png           # Dual-panel RMSE & R² plot for Exhaustive Search
-├── lasso_l1_ranking_progression.csv     # Progression table data (k=1..5) for Lasso
-├── forward_sfs_progression.csv          # Progression table data (k=1..5) for Forward SFS
-├── rfe_progression.csv                  # Progression table data (k=1..5) for RFE
-├── elasticnet_ranking_progression.csv   # Progression table data (k=1..5) for ElasticNet
-└── exhaustive_search_progression.csv    # Progression table data (k=1..5) for Exhaustive Search
+├── app.py                              # Flask Web Application (WSGI entrypoint & REST API)
+├── api/
+│   └── index.py                        # Vercel Serverless Function entry point
+├── templates/
+│   └── index.html                      # StatsUnlock-style Jinja2 web template
+├── static/
+│   └── model_data.js                   # Static data asset for instant frontend fallback
+├── model_data.json                     # Comprehensive model statistics, weights, and tests
+├── vercel.json                         # Vercel deployment configuration
+├── requirements.txt                    # Project dependencies (Flask, NumPy, Pandas, etc.)
+├── main.py                             # CRISP-DM CLI multiple linear regression script
+├── feature_progression_analysis.py     # Script generating k=1..5 metrics and charts
+├── all_5_algorithms_comparison_plot.png# Comparison chart of all 5 algorithms
+└── README.md                           # Documentation and project manual
 ```
 
 ---
 
-## 🛠️ Installation & Setup
+## ☁️ Deploying to Vercel
 
-1. **Clone or navigate to the workspace directory**:
-   ```bash
-   cd "d:/Huan Chen/AIoT2026/L5-1 50 startup"
-   ```
+This repository is configured for zero-config Vercel Python deployment:
 
-2. **Install Dependencies**:
+1. Push changes to GitHub:
    ```bash
-   pip install -r requirements.txt
+   git add .
+   git commit -m "feat: migrate to Flask web framework"
+   git push origin main
    ```
-
-3. **Run the CRISP-DM Python Pipeline**:
-   ```bash
-   python main.py
-   ```
-
-4. **Regenerate Progression Analysis & Plots**:
-   ```bash
-   python feature_progression_analysis.py
-   ```
-
-5. **Start the Web App**:
-   ```bash
-   python -m http.server 8080
-   ```
-   Open **[http://localhost:8080/](http://localhost:8080/)** in your browser.
+2. In [Vercel](https://vercel.com/new), select **Import Git Repository** (`huanchen1107/AIoT-DIC2-MultipleLR`).
+3. Click **Deploy**. Vercel will build the serverless Flask app using `api/index.py` and route all requests through `vercel.json`.
 
 ---
 
@@ -124,7 +124,7 @@ We gratefully acknowledge the following references, datasets, and open-source to
 2. **Dataset**:
    - [50 Startups Dataset (Avik Jain 100-Days-Of-ML-Code)](https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv).
 3. **Core Libraries**:
+   - [Flask](https://flask.palletsprojects.com/): Python micro web framework.
    - [Scikit-learn](https://scikit-learn.org/): For LassoCV, ElasticNetCV, SequentialFeatureSelector, and RFE.
    - [Statsmodels](https://www.statsmodels.org/): For OLS inference, $t$-tests, $p$-values, confidence intervals, and VIF calculations.
    - [Chart.js](https://www.chartjs.org/): For responsive, interactive dual-panel line charts.
-"# AIoT-DIC2-MultipleLR" 
