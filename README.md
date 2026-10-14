@@ -8,6 +8,7 @@ This project evaluates **Multiple Linear Regression (OLS)** against **5 distinct
 
 ## 🌐 Live Demo & Interactive Web Application
 
+🐙 **GitHub Repository**: **[https://github.com/huanchen1107/AIoT-DIC2-MultipleLR](https://github.com/huanchen1107/AIoT-DIC2-MultipleLR)**  
 🔗 **Live Demo**: **[https://huanchen1107.github.io/AIoT-DIC2-MultipleLR/](https://huanchen1107.github.io/AIoT-DIC2-MultipleLR/)**
 
 ![50 Startups Interactive Regression & Feature Selection Explorer](dashboard_demo.png)
