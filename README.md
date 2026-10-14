@@ -1,4 +1,4 @@
-# 50 Startups: Multiple Linear Regression & Feature Selection Explorer (Flask Web App)
+# 50 Startups: Multiple Linear Regression & Feature Selection Explorer
 
 An interactive machine learning, statistical inference, and full-stack web platform built with the **Flask framework** and following the **CRISP-DM** (Cross-Industry Standard Process for Data Mining) methodology.
 
@@ -6,7 +6,11 @@ This project evaluates **Multiple Linear Regression (OLS)** against **5 distinct
 
 ---
 
-## 🌐 Flask Web Application & Live Demo
+## 🌐 Live Demo & Interactive Web Application
+
+🔗 **Live Demo**: **[https://huanchen1107.github.io/AIoT-DIC2-MultipleLR/](https://huanchen1107.github.io/AIoT-DIC2-MultipleLR/)**
+
+![50 Startups Interactive Regression & Feature Selection Explorer](dashboard_demo.png)
 
 The web application is styled with the professional SaaS statistical calculator layout inspired by [StatsUnlock](https://statsunlock.com/multiple-linear-regression-calculator/).
 
@@ -82,6 +86,7 @@ All 5 methods were benchmarked across $k=1 \dots 5$ features on the out-of-sampl
 ## 📁 Repository Structure
 
 ```text
+├── dashboard_demo.png                  # Dashboard screenshot in README
 ├── app.py                              # Flask Web Application (WSGI entrypoint & REST API)
 ├── api/
 │   └── index.py                        # Vercel Serverless Function entry point
@@ -100,18 +105,14 @@ All 5 methods were benchmarked across $k=1 \dots 5$ features on the out-of-sampl
 
 ---
 
-## ☁️ Deploying to Vercel
+## ☁️ Deployment
 
-This repository is configured for zero-config Vercel Python deployment:
+### 1. GitHub Pages (Active)
+🔗 **[https://huanchen1107.github.io/AIoT-DIC2-MultipleLR/](https://huanchen1107.github.io/AIoT-DIC2-MultipleLR/)**
+Automated deployment via `.github/workflows/pages.yml`.
 
-1. Push changes to GitHub:
-   ```bash
-   git add .
-   git commit -m "feat: migrate to Flask web framework"
-   git push origin main
-   ```
-2. In [Vercel](https://vercel.com/new), select **Import Git Repository** (`huanchen1107/AIoT-DIC2-MultipleLR`).
-3. Click **Deploy**. Vercel will build the serverless Flask app using `api/index.py` and route all requests through `vercel.json`.
+### 2. Vercel
+Configured for zero-config Vercel Python serverless deployment via `api/index.py` and `vercel.json`.
 
 ---
 
