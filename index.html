@@ -1,36 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>50 Startups: Multiple Linear Regression & Feature Selection Explorer</title>
+  <title>Multiple Linear Regression & Feature Selection Explorer</title>
   
-  <!-- Google Fonts: Outfit & Inter -->
+  <!-- Google Fonts: Outfit, Inter & Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
   
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  
-  <!-- Model Data JS -->
-  <script src="model_data.js"></script>
+
+  <!-- External Datasets (Fallback & Standalone Supported) -->
+  <script src="dataset_samples.js"></script>
 
   <style>
     :root {
-      --primary-dark: #343090;
-      --primary: #4f46e5;
-      --primary-light: #6366f1;
-      --primary-subtle: #eef2ff;
-      --accent-blue: #3b82f6;
-      --accent-emerald: #10b981;
+      /* New Modern Slate & Ocean Studio Theme (Distinct from teacher's purple StatsUnlock) */
+      --primary-dark: #0f172a;
+      --primary: #0284c7;
+      --primary-light: #38bdf8;
+      --primary-subtle: #f0f9ff;
+      --accent-blue: #2563eb;
+      --accent-emerald: #059669;
       --accent-emerald-subtle: #ecfdf5;
-      --accent-amber: #f59e0b;
+      --accent-amber: #d97706;
       --accent-amber-subtle: #fffbeb;
-      --accent-rose: #f43f5e;
+      --accent-rose: #e11d48;
       --accent-rose-subtle: #fff1f2;
       --slate-50: #f8fafc;
       --slate-100: #f1f5f9;
@@ -44,12 +45,11 @@
       --slate-900: #0f172a;
       --radius-sm: 8px;
       --radius-md: 12px;
-      --radius-lg: 16px;
-      --radius-xl: 20px;
-      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-      --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.15);
+      --radius-lg: 14px;
+      --radius-xl: 18px;
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
     }
 
     * {
@@ -60,9 +60,9 @@
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--slate-50);
+      background-color: var(--slate-100);
       color: var(--slate-800);
-      line-height: 1.5;
+      line-height: 1.55;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -78,15 +78,15 @@
       padding: 24px 20px 60px;
     }
 
-    /* Top Breadcrumb & Header */
+    /* Top Header Navigation */
     .top-header {
       background: white;
       border-bottom: 1px solid var(--slate-200);
-      padding: 16px 0;
+      padding: 14px 0;
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
     }
 
     .header-inner {
@@ -104,7 +104,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 13px;
+      font-size: 12.5px;
       color: var(--slate-500);
       margin-bottom: 4px;
     }
@@ -120,23 +120,25 @@
     }
 
     .header-title-group h1 {
-      font-size: 24px;
+      font-size: 21px;
       letter-spacing: -0.02em;
       color: var(--slate-900);
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
     }
 
     .brand-badge {
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-      color: white;
+      background: var(--slate-900);
+      color: var(--primary-light);
       font-size: 11px;
       font-weight: 700;
-      padding: 3px 9px;
+      padding: 3px 10px;
       border-radius: 9999px;
       letter-spacing: 0.04em;
       text-transform: uppercase;
+      border: 1px solid rgba(56, 189, 248, 0.2);
     }
 
     .header-actions {
@@ -145,79 +147,71 @@
       gap: 12px;
     }
 
-    .ref-btn {
+    .engine-status-pill {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--slate-100);
+      background: var(--slate-50);
       color: var(--slate-700);
       border: 1px solid var(--slate-200);
-      padding: 8px 14px;
-      border-radius: var(--radius-md);
-      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 12.5px;
       font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s;
     }
 
-    .ref-btn:hover {
+    .engine-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 8px rgba(5, 150, 105, 0.6);
+    }
+
+    /* Modern Studio Top Card (Replaces the clunky purple banner & deleted redundant text) */
+    .studio-header-card {
       background: white;
-      border-color: var(--primary-light);
-      color: var(--primary);
+      border: 1px solid var(--slate-200);
+      border-top: 4px solid var(--primary);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      margin-bottom: 22px;
       box-shadow: var(--shadow-sm);
     }
 
-    /* Hero Banner */
-    .hero-card {
-      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #3730a3 100%);
-      color: white;
-      border-radius: var(--radius-xl);
-      padding: 36px 40px;
-      margin-bottom: 28px;
-      box-shadow: var(--shadow-lg);
-      position: relative;
-      overflow: hidden;
+    .studio-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 14px;
     }
 
-    .hero-card::after {
-      content: '';
-      position: absolute;
-      top: -60px;
-      right: -60px;
-      width: 320px;
-      height: 320px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
-      pointer-events: none;
+    .studio-title-row h2 {
+      font-size: 22px;
+      color: var(--slate-900);
+      letter-spacing: -0.01em;
+      margin-bottom: 2px;
     }
 
-    .hero-card h2 {
-      font-size: 32px;
-      color: white;
-      margin-bottom: 12px;
-      line-height: 1.25;
-    }
-
-    .hero-card p {
-      font-size: 15px;
-      color: #c7d2fe;
-      max-width: 820px;
-      line-height: 1.6;
+    .studio-subtitle {
+      font-size: 13.5px;
+      color: var(--slate-500);
     }
 
     .hero-tags {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
-      margin-top: 20px;
     }
 
     .hero-pill {
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      color: #e0e7ff;
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      color: var(--slate-700);
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 600;
       padding: 5px 12px;
       border-radius: 9999px;
       display: flex;
@@ -225,19 +219,20 @@
       gap: 6px;
     }
 
-    /* Main Grid & Cards */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 24px;
+    .hero-pill.sweet {
+      background: var(--accent-emerald-subtle);
+      border-color: #a7f3d0;
+      color: #065f46;
     }
 
+    /* Cards */
     .card {
       background: white;
       border-radius: var(--radius-lg);
       border: 1px solid var(--slate-200);
       box-shadow: var(--shadow-sm);
-      padding: 24px;
+      padding: 22px 24px;
+      margin-bottom: 22px;
       transition: box-shadow 0.2s, border-color 0.2s;
     }
 
@@ -250,13 +245,13 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       flex-wrap: wrap;
       gap: 12px;
     }
 
     .card-title-group h3 {
-      font-size: 18px;
+      font-size: 17.5px;
       color: var(--slate-900);
       display: flex;
       align-items: center;
@@ -269,94 +264,103 @@
       margin-top: 2px;
     }
 
-    /* Controls Bar */
-    .controls-wrapper {
-      background: white;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--slate-200);
-      box-shadow: var(--shadow-sm);
-      padding: 20px 24px;
-      margin-bottom: 24px;
+    /* Controls Bar & Grid */
+    .controls-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      margin-bottom: 16px;
     }
 
-    .control-label {
-      font-size: 11px;
+    .control-item label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--slate-400);
-      margin-bottom: 10px;
-      display: block;
+      letter-spacing: 0.04em;
+      color: var(--slate-600);
+      margin-bottom: 6px;
     }
 
-    .tabs-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    .tab-btn {
-      padding: 10px 18px;
-      background: var(--slate-50);
-      border: 1px solid var(--slate-200);
+    select, textarea, input[type=file], .btn-primary {
+      width: 100%;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--slate-800);
+      background: white;
+      border: 1px solid var(--slate-300);
       border-radius: var(--radius-md);
-      font-size: 13.5px;
+      padding: 10px 14px;
+      transition: all 0.15s;
+    }
+
+    select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    textarea {
+      min-height: 120px;
+      font-family: 'Fira Code', monospace;
+      font-size: 12.5px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border: 0;
       font-weight: 600;
-      color: var(--slate-700);
       cursor: pointer;
       display: inline-flex;
+      justify-content: center;
       align-items: center;
       gap: 8px;
-      transition: all 0.2s;
+      padding: 10px 18px;
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
     }
 
-    .tab-btn:hover {
-      background: var(--primary-subtle);
-      border-color: var(--primary-light);
-      color: var(--primary);
+    .btn-primary:hover {
+      background: #0369a1;
+      transform: translateY(-1px);
     }
 
-    .tab-btn.active {
-      background: var(--primary-dark);
-      border-color: var(--primary-dark);
-      color: white;
-      box-shadow: 0 4px 10px rgba(52, 48, 144, 0.25);
-    }
-
-    .tab-btn .badge-pill {
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 9999px;
-      background: rgba(0, 0, 0, 0.06);
-    }
-
-    .tab-btn.active .badge-pill {
-      background: rgba(255, 255, 255, 0.25);
-      color: white;
+    /* Custom Box */
+    #customBox {
+      background: var(--slate-50);
+      border: 1px dashed var(--slate-300);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      margin-top: 14px;
+      display: none;
     }
 
     /* Feature Count Step Buttons */
     .k-selector-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
+      margin-top: 10px;
     }
 
     .k-btn {
-      padding: 9px 16px;
+      padding: 7px 14px;
       border: 1px solid var(--slate-200);
       background: white;
       border-radius: var(--radius-md);
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       color: var(--slate-700);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
+      gap: 6px;
+      transition: all 0.15s;
     }
 
     .k-btn:hover {
@@ -368,11 +372,11 @@
       background: var(--primary);
       border-color: var(--primary);
       color: white;
-      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
     }
 
     .k-btn.sweet-spot {
-      border-color: var(--accent-emerald);
+      border-color: #10b981;
       background: var(--accent-emerald-subtle);
       color: #065f46;
     }
@@ -381,17 +385,7 @@
       background: #059669;
       border-color: #059669;
       color: white;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-    }
-
-    .k-btn.overfitting {
-      border-color: var(--accent-amber);
-    }
-
-    .k-btn.overfitting.active {
-      background: #d97706;
-      border-color: #d97706;
-      color: white;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
     }
 
     /* Metrics Grid */
@@ -399,14 +393,14 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 16px;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
 
     .metric-card {
       background: white;
       border-radius: var(--radius-lg);
       border: 1px solid var(--slate-200);
-      padding: 20px;
+      padding: 18px 20px;
       position: relative;
       overflow: hidden;
       box-shadow: var(--shadow-sm);
@@ -424,21 +418,21 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: var(--primary);
+      height: 3px;
+      background: var(--slate-300);
     }
 
     .metric-card.sweet::before {
       background: var(--accent-emerald);
     }
 
-    .metric-card.alert::before {
-      background: var(--accent-amber);
+    .metric-card.ocean::before {
+      background: var(--primary);
     }
 
     .metric-title {
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11.5px;
+      font-weight: 700;
       color: var(--slate-500);
       text-transform: uppercase;
       letter-spacing: 0.04em;
@@ -453,12 +447,12 @@
       font-family: 'Outfit', sans-serif;
       font-weight: 700;
       color: var(--slate-900);
-      line-height: 1.1;
+      line-height: 1.15;
       margin-bottom: 6px;
     }
 
     .metric-note {
-      font-size: 12px;
+      font-size: 11.5px;
       color: var(--slate-500);
       display: flex;
       align-items: center;
@@ -483,8 +477,8 @@
 
     .badge-blue {
       background: var(--primary-subtle);
-      color: var(--primary-dark);
-      border: 1px solid #c7d2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
     }
 
     .badge-amber {
@@ -493,28 +487,56 @@
       border: 1px solid #fde68a;
     }
 
+    /* Active Predictors Bar */
+    .predictors-bar {
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .feature-chip {
+      background: var(--primary-subtle);
+      color: #0369a1;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid #bae6fd;
+    }
+
     /* Dual Charts Grid */
     .dual-charts-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
-      gap: 24px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+      gap: 22px;
+      margin-bottom: 22px;
     }
 
     .chart-container {
       position: relative;
-      height: 340px;
+      height: 330px;
       width: 100%;
     }
 
-    /* Mathematical Equation Box */
+    /* Equation Card */
     .equation-card {
-      background: linear-gradient(to right, #fcfdff, #f8faff);
-      border: 1px solid #cfcfea;
-      border-left: 5px solid var(--primary);
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-left: 4px solid var(--primary);
       border-radius: var(--radius-md);
-      padding: 20px 24px;
-      margin-bottom: 24px;
+      padding: 18px 22px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow-sm);
     }
 
     .equation-title {
@@ -528,23 +550,17 @@
 
     .equation-formula {
       font-family: 'Fira Code', monospace;
-      font-size: 15px;
+      font-size: 14px;
       color: var(--slate-900);
       line-height: 1.8;
       word-break: break-word;
-      background: white;
+      background: var(--slate-50);
       padding: 14px 18px;
       border-radius: var(--radius-sm);
       border: 1px solid var(--slate-200);
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
     }
 
-    .eq-intercept { color: #4338ca; font-weight: 600; }
-    .eq-var { color: #0284c7; font-weight: 600; }
-    .eq-pos { color: #059669; font-weight: 600; }
-    .eq-neg { color: #dc2626; font-weight: 600; }
-
-    /* Tables */
+    /* Table */
     .table-responsive {
       overflow-x: auto;
       border-radius: var(--radius-md);
@@ -559,12 +575,12 @@
     }
 
     table.data-table thead {
-      background: var(--slate-100);
+      background: var(--slate-50);
       border-bottom: 1px solid var(--slate-200);
     }
 
     table.data-table th {
-      padding: 12px 16px;
+      padding: 11px 16px;
       font-weight: 600;
       color: var(--slate-700);
       font-size: 12px;
@@ -573,70 +589,63 @@
     }
 
     table.data-table td {
-      padding: 13px 16px;
+      padding: 11px 16px;
       border-bottom: 1px solid var(--slate-100);
       color: var(--slate-700);
     }
 
-    table.data-table tbody tr:last-child td {
-      border-bottom: none;
-    }
-
     table.data-table tbody tr:hover {
-      background: #f8faff;
+      background: #f8fafc;
     }
 
-    .feature-chip {
-      background: var(--primary-subtle);
-      color: var(--primary-dark);
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      display: inline-block;
-    }
-
-    /* Interactive Calculator Section */
+    /* Live Calculator Section */
     .calc-grid {
       display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 24px;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 22px;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 960px) {
       .calc-grid {
+        grid-template-columns: 1fr;
+      }
+      .dual-charts-grid {
         grid-template-columns: 1fr;
       }
     }
 
+    .live-inputs-container {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
     .input-group {
-      margin-bottom: 16px;
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
     }
 
     .input-label-row {
       display: flex;
       justify-content: space-between;
       margin-bottom: 6px;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       color: var(--slate-700);
     }
 
     .input-field {
       width: 100%;
-      padding: 10px 14px;
+      padding: 8px 12px;
       border: 1px solid var(--slate-300);
-      border-radius: var(--radius-md);
-      font-size: 14px;
-      font-family: inherit;
-      color: var(--slate-900);
-      transition: all 0.15s;
-    }
-
-    .input-field:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      background: white;
     }
 
     .range-slider {
@@ -645,11 +654,13 @@
       accent-color: var(--primary);
     }
 
+    /* Modern Obsidian Tech Output Box (Replaces the purple box) */
     .prediction-output-box {
-      background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%);
+      background: #0f172a;
       color: white;
+      border: 1px solid #1e293b;
       border-radius: var(--radius-lg);
-      padding: 30px;
+      padding: 26px 20px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -663,38 +674,41 @@
     .prediction-output-box::before {
       content: '';
       position: absolute;
-      top: -40px;
-      right: -40px;
-      width: 160px;
-      height: 160px;
-      background: radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%);
+      top: -30px;
+      right: -30px;
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, rgba(2, 132, 199, 0.25) 0%, transparent 70%);
       pointer-events: none;
     }
 
     .pred-label {
-      font-size: 13px;
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #c7d2fe;
-      margin-bottom: 10px;
+      color: #94a3b8;
+      margin-bottom: 8px;
     }
 
     .pred-value {
-      font-size: 38px;
+      font-size: 34px;
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      color: #34d399;
-      margin-bottom: 12px;
+      color: #10b981;
+      margin-bottom: 10px;
       letter-spacing: -0.02em;
     }
 
     .pred-formula-note {
       font-size: 12px;
-      color: #a5b4fc;
+      color: #94a3b8;
       line-height: 1.5;
+      max-height: 120px;
+      overflow-y: auto;
+      padding: 0 8px;
     }
 
-    /* Outliers & Diagnostics */
+    /* Outliers Status Dots */
     .status-dot {
       display: inline-block;
       width: 8px;
@@ -706,14 +720,26 @@
     .dot-amber { background: var(--accent-amber); }
     .dot-red { background: var(--accent-rose); }
 
-    /* Footer & Acknowledgments */
+    .err-box {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* Footer */
     footer {
-      margin-top: 50px;
+      margin-top: 48px;
       background: white;
       border-top: 1px solid var(--slate-200);
-      padding: 36px 0;
+      padding: 30px 0;
       color: var(--slate-600);
-      font-size: 13.5px;
+      font-size: 13px;
     }
 
     .footer-inner {
@@ -724,33 +750,6 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 24px;
-    }
-
-    .ack-card {
-      background: var(--slate-50);
-      border: 1px solid var(--slate-200);
-      border-radius: var(--radius-md);
-      padding: 16px 20px;
-      margin-top: 16px;
-      line-height: 1.6;
-    }
-
-    .ack-card a {
-      color: var(--primary);
-      text-decoration: underline;
-      font-weight: 500;
-    }
-
-    @media (max-width: 768px) {
-      .dual-charts-grid {
-        grid-template-columns: 1fr;
-      }
-      .hero-card {
-        padding: 24px;
-      }
-      .hero-card h2 {
-        font-size: 24px;
-      }
     }
   </style>
 </head>
@@ -765,178 +764,228 @@
           <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i>
           <a href="#">Regression Analysis</a>
           <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i>
-          <span style="color: var(--slate-800); font-weight: 600;">50 Startups Feature Progression</span>
+          <span style="color: var(--slate-800); font-weight: 600;">Multiple Linear Regression Studio</span>
         </div>
         <div class="header-title-group">
           <h1>
             <i class="fa-solid fa-chart-line" style="color: var(--primary);"></i>
-            50 Startups Multiple Linear Regression Explorer
-            <span class="brand-badge">CRISP-DM</span>
+            Multiple Linear Regression & Feature Selection Explorer
+            <span class="brand-badge">Client Engine</span>
           </h1>
         </div>
       </div>
       <div class="header-actions">
-        <a href="https://statsunlock.com/multiple-linear-regression-calculator/" target="_blank" class="ref-btn">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i>
-          Style Ref: StatsUnlock
-        </a>
+        <div class="engine-status-pill">
+          <span class="engine-status-dot"></span>
+          <span>100% In-Browser Engine (seed=42)</span>
+        </div>
       </div>
     </div>
   </header>
 
   <div class="container">
 
-    <!-- Hero Card Banner -->
-    <div class="hero-card">
-      <h2>Feature Selection & Parsimony Analysis</h2>
-      <p>
-        Compare 5 Machine Learning Feature Selection Algorithms (<strong>Lasso</strong>, <strong>Forward SFS</strong>, <strong>RFE</strong>, <strong>ElasticNet</strong>, <strong>Exhaustive Search</strong>) against Baseline OLS. Explore the bias-variance tradeoff across feature counts $k=1 \dots 5$, pinpointing the <strong>2-feature optimal sweet spot</strong> and the <strong>5-feature overfitting cliff</strong>.
-      </p>
-      <div class="hero-tags">
-        <span class="hero-pill"><i class="fa-solid fa-database"></i> 50 Startups Dataset</span>
-        <span class="hero-pill"><i class="fa-solid fa-bolt"></i> 5 Selection Methods</span>
-        <span class="hero-pill"><i class="fa-solid fa-star" style="color: #34d399;"></i> Global Sweet Spot: k=2 ($8,198.80 RMSE)</span>
-        <span class="hero-pill"><i class="fa-solid fa-triangle-exclamation" style="color: #fbbf24;"></i> Overfitting Warning: k=5 ($9,137.99 RMSE)</span>
+    <!-- Top Studio Summary Card (Replaces clunky purple hero card & removed redundant paragraph) -->
+    <div class="studio-header-card">
+      <div class="studio-title-row">
+        <div>
+          <h2>多元線性迴歸與特徵選擇分析平台</h2>
+          <div class="studio-subtitle">探索 OLS 迴歸、4 大特徵篩選法與特徵數 k 之偏差-變異權衡 (Bias-Variance Tradeoff)</div>
+        </div>
+      </div>
+      <div class="hero-tags" id="heroTags">
+        <span class="hero-pill" id="pillDataset"><i class="fa-solid fa-database"></i> 50 Startups Dataset (50 筆)</span>
+        <span class="hero-pill"><i class="fa-solid fa-cubes"></i> 4 大特徵選擇方法</span>
+        <span class="hero-pill sweet" id="pillSweetSpot"><i class="fa-solid fa-star"></i> Sweet Spot: k=2 (最小 RMSE)</span>
+        <span class="hero-pill"><i class="fa-solid fa-chart-simple"></i> 80% 訓練集 / 20% 測試集</span>
       </div>
     </div>
 
-    <!-- Controls Wrapper -->
-    <div class="controls-wrapper">
-      <span class="control-label"><i class="fa-solid fa-sliders"></i> 1. Select Feature Selection Algorithm</span>
-      <div class="tabs-pills" id="algoTabs">
-        <button class="tab-btn active" data-algo="Lasso">
-          <i class="fa-solid fa-filter"></i> Lasso (L1 Ranking)
-          <span class="badge-pill">Matches Benchmark</span>
-        </button>
-        <button class="tab-btn" data-algo="Forward SFS">
-          <i class="fa-solid fa-arrow-trend-up"></i> Forward SFS
-          <span class="badge-pill">Greedy</span>
-        </button>
-        <button class="tab-btn" data-algo="RFE">
-          <i class="fa-solid fa-scissors"></i> RFE
-          <span class="badge-pill">Backward</span>
-        </button>
-        <button class="tab-btn" data-algo="ElasticNet">
-          <i class="fa-solid fa-diagram-project"></i> ElasticNet
-          <span class="badge-pill">L1 + L2</span>
-        </button>
-        <button class="tab-btn" data-algo="Exhaustive">
-          <i class="fa-solid fa-magnifying-glass-chart"></i> Exhaustive Search
-          <span class="badge-pill">Best Subset</span>
-        </button>
-        <button class="tab-btn" data-algo="ALL" style="border-left: 2px solid var(--primary);">
-          <i class="fa-solid fa-layer-group"></i> 🌟 Compare All 5 Methods
-        </button>
+    <!-- Control Center Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <h3><i class="fa-solid fa-sliders" style="color: var(--primary);"></i> 實驗設定與資料控制台</h3>
+          <div class="card-subtitle">切換 Problem 資料集、選擇特徵篩選演算法，或直接自訂 CSV 檔案分析。</div>
+        </div>
       </div>
 
-      <span class="control-label" style="margin-top: 12px;"><i class="fa-solid fa-list-ol"></i> 2. Number of Features (k = 1 to 5)</span>
-      <div class="k-selector-group" id="kSelectorGroup">
-        <button class="k-btn" data-k="1">k = 1 <span style="font-weight: 400; font-size: 11px;">(R&D Spend)</span></button>
-        <button class="k-btn sweet-spot active" data-k="2">k = 2 ★ Optimal Sweet Spot <span style="font-size: 11px; font-weight: 700;">(Min RMSE)</span></button>
-        <button class="k-btn" data-k="3">k = 3 <span style="font-size: 11px;">(+ State / Admin)</span></button>
-        <button class="k-btn" data-k="4">k = 4 <span style="font-size: 11px;">(4 Predictors)</span></button>
-        <button class="k-btn overfitting" data-k="5">k = 5 ⚠ Full Model <span style="font-size: 11px; font-weight: 700;">(Overfitting Cliff)</span></button>
+      <div class="controls-grid">
+        <!-- Problem Selector -->
+        <div class="control-item">
+          <label for="probSelect"><i class="fa-solid fa-folder-open"></i> ① 選擇 Problem (+1 分)</label>
+          <select id="probSelect">
+            <option value="startups">Problem 1 · 50 Startups (預測 Profit)</option>
+            <option value="housing_real">Problem 2 · Boston Housing (真實 506 筆資料)</option>
+            <option value="housing_sim">Problem 2 (模擬) · Housing Price (80 筆模擬資料)</option>
+            <option value="custom">Custom · 自行輸入 Dataset (+2 分)</option>
+          </select>
+        </div>
+
+        <!-- Target Variable Selector -->
+        <div class="control-item">
+          <label for="targetSelect"><i class="fa-solid fa-crosshairs"></i> ② 目標變數 (y)</label>
+          <select id="targetSelect"></select>
+        </div>
+
+        <!-- Algorithm Selector -->
+        <div class="control-item">
+          <label for="methodSelect"><i class="fa-solid fa-filter"></i> ③ 特徵選擇方法</label>
+          <select id="methodSelect">
+            <option value="lasso">Lasso (L1 Path 排序)</option>
+            <option value="forward">Forward SFS (貪婪前向選擇)</option>
+            <option value="backward">Backward / RFE (後向消除)</option>
+            <option value="exhaustive">Exhaustive Best Subset (全子集搜尋)</option>
+            <option value="compare_all">🌟 Compare All 4 Methods (同台比較)</option>
+          </select>
+        </div>
+
+        <!-- Feature Count Dropdown -->
+        <div class="control-item">
+          <label for="kSelect"><i class="fa-solid fa-list-ol"></i> ④ 特徵數 k (標示 ★ 最小 RMSE)</label>
+          <select id="kSelect"></select>
+        </div>
       </div>
+
+      <!-- Custom Dataset Input Box -->
+      <div id="customBox">
+        <label style="font-weight: 700; font-size: 13px; margin-bottom: 6px; display: block;">
+          <i class="fa-solid fa-file-csv" style="color: var(--primary);"></i> 貼上 CSV / TSV 資料（第一列為欄位名）或上傳檔案：
+        </label>
+        <textarea id="csvInput" spellcheck="false" placeholder="例如：
+Feature1,Feature2,Category,Price
+12.5,100,TypeA,350
+14.2,150,TypeB,420
+..."></textarea>
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 12px; margin-top: 10px;">
+          <input type="file" id="fileInput" accept=".csv,.tsv,.txt">
+          <button class="btn-primary" id="btnLoadCustom" style="width: auto;">
+            <i class="fa-solid fa-bolt"></i> 載入並開始即時分析
+          </button>
+        </div>
+        <div style="font-size: 12px; color: var(--slate-500); margin-top: 8px;">
+          <i class="fa-solid fa-circle-info"></i> 提示：支援數值與類別欄位。類別特徵（相異值 $\le 10$）將自動進行 One-Hot Encoding 並移除基準類別以防共線性虛擬變數陷阱。
+        </div>
+      </div>
+
+      <!-- Quick Interactive Step Buttons for k -->
+      <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--slate-200);">
+        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--slate-500); margin-bottom: 8px;">
+          <i class="fa-solid fa-hand-pointer"></i> 快速切換特徵數 k:
+        </div>
+        <div class="k-selector-group" id="kStepButtons"></div>
+      </div>
+
+      <!-- Status Info & Error Message -->
+      <div style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div id="datasetInfo" style="font-size: 13px; color: var(--slate-600); font-weight: 500;">
+          <i class="fa-solid fa-spinner fa-spin"></i> 正在載入資料中...
+        </div>
+        <div id="parsimonyBadge" class="badge-tag badge-green" style="font-size: 12px; padding: 4px 10px;">
+          <i class="fa-solid fa-star"></i> 最佳模型計算中...
+        </div>
+      </div>
+      <div class="err-box" id="errorBox"></div>
     </div>
 
-    <!-- Metrics Ribbon -->
+    <!-- Metrics Ribbon (4 Core Metrics + F-Stat) -->
     <div class="metrics-grid" id="metricsGrid">
-      <div class="metric-card sweet">
+      <!-- Test RMSE -->
+      <div class="metric-card sweet" id="cardRMSE">
         <div class="metric-title">
           <span>Test RMSE</span>
-          <span class="badge-tag badge-green" id="rmseBadge"><i class="fa-solid fa-award"></i> Optimal</span>
+          <span class="badge-tag badge-green" id="badgeRMSE"><i class="fa-solid fa-award"></i> Optimal</span>
         </div>
-        <div class="metric-val" id="valRMSE">$8,198.80</div>
+        <div class="metric-val" id="valRMSE">—</div>
         <div class="metric-note">
-          <span>Lower is better (Best across methods)</span>
+          <i class="fa-solid fa-arrow-down" style="color: var(--accent-emerald);"></i> 測試集均方根誤差（越小越佳）
         </div>
       </div>
 
-      <div class="metric-card sweet">
+      <!-- Test R2 -->
+      <div class="metric-card ocean" id="cardR2">
         <div class="metric-title">
-          <span>R² Score</span>
-          <span class="badge-tag badge-blue"><i class="fa-solid fa-circle-check"></i> 94.7% Fit</span>
+          <span>Test R² Score</span>
+          <span class="badge-tag badge-blue" id="badgeR2"><i class="fa-solid fa-circle-check"></i> High Fit</span>
         </div>
-        <div class="metric-val" id="valR2">0.9474</div>
+        <div class="metric-val" id="valR2">—</div>
         <div class="metric-note">
-          <span>Explains 94.74% of profit variance</span>
+          <span>測試集判定係數（解釋變異比例）</span>
         </div>
       </div>
 
-      <div class="metric-card">
+      <!-- Adjusted R2 -->
+      <div class="metric-card" id="cardAdjR2">
         <div class="metric-title">
           <span>Adjusted R²</span>
           <i class="fa-solid fa-scale-balanced" style="color: var(--slate-400);"></i>
         </div>
-        <div class="metric-val" id="valAdjR2">0.9324</div>
+        <div class="metric-val" id="valAdjR2">—</div>
         <div class="metric-note">
-          <span>Penalizes redundant parameters</span>
+          <span>訓練集校正 R²（懲罰無效多餘參數）</span>
         </div>
       </div>
 
-      <div class="metric-card">
+      <!-- Test MAE -->
+      <div class="metric-card" id="cardMAE">
         <div class="metric-title">
-          <span>Mean Absolute Error</span>
+          <span>Test MAE</span>
           <i class="fa-solid fa-calculator" style="color: var(--slate-400);"></i>
         </div>
-        <div class="metric-val" id="valMAE">$6,488.75</div>
+        <div class="metric-val" id="valMAE">—</div>
         <div class="metric-note">
-          <span>Average prediction error ($)</span>
+          <span>測試集平均絕對誤差</span>
         </div>
       </div>
 
-      <div class="metric-card">
+      <!-- F-Statistic -->
+      <div class="metric-card" id="cardFStat">
         <div class="metric-title">
-          <span>F-Statistic</span>
-          <span class="badge-tag badge-green">p &lt; 0.0001</span>
+          <span>F-Statistic (Train)</span>
+          <span class="badge-tag badge-green" id="badgeFStat">p &lt; 0.0001</span>
         </div>
-        <div class="metric-val" id="valFStat">347.8</div>
+        <div class="metric-val" id="valFStat">—</div>
         <div class="metric-note">
-          <span>Model is highly statistically significant</span>
+          <span>整體模型迴歸顯著性檢定</span>
         </div>
       </div>
     </div>
 
     <!-- Active Features Chips -->
-    <div style="background: white; border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 14px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+    <div class="predictors-bar">
       <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
         <span style="font-size: 13px; font-weight: 700; color: var(--slate-700);">
-          <i class="fa-solid fa-check-double" style="color: var(--primary);"></i> Active Predictors (<span id="featuresCount">2</span>):
+          <i class="fa-solid fa-check-double" style="color: var(--primary);"></i> 被選中的特徵變數 (<span id="activeCount">0</span>):
         </span>
-        <div id="featuresListChips" style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <span class="feature-chip">R&D Spend</span>
-          <span class="feature-chip">Marketing Spend</span>
-        </div>
+        <div id="featureChips" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
       </div>
-      <div id="parsimonyNotice" class="badge-tag badge-green" style="font-size: 12px; padding: 4px 10px;">
-        <i class="fa-solid fa-star"></i> Occam's Razor: 2-feature model minimizes out-of-sample error.
-      </div>
+      <div id="parsimonyNotice" style="font-size: 12.5px; color: var(--slate-600);"></div>
     </div>
 
-    <!-- Dual Charts Section (Matching User's Uploaded Plot) -->
+    <!-- Dual Interactive Charts Section -->
     <div class="dual-charts-grid">
-      <!-- Left Chart: RMSE -->
-      <div class="card">
+      <!-- Left Chart: RMSE vs k (All 4 Methods) -->
+      <div class="card" style="margin-bottom: 0;">
         <div class="card-header">
           <div class="card-title-group">
-            <h3><i class="fa-solid fa-chart-line" style="color: var(--primary);"></i> RMSE by Number of Features</h3>
-            <div class="card-subtitle">Lower is better. Sharp valley at k=2, jump at k=5.</div>
+            <h3><i class="fa-solid fa-chart-line" style="color: var(--primary);"></i> Test RMSE vs k（4 種方法同台比較）</h3>
+            <div class="card-subtitle">觀察各演算法在特徵增加時的測試誤差變化，尋求全局最佳谷底。</div>
           </div>
-          <span class="badge-tag badge-blue" id="rmseChartBadge">Lasso (L1)</span>
+          <span class="badge-tag badge-blue" id="rmseChartBadge">Lasso</span>
         </div>
         <div class="chart-container">
           <canvas id="rmseChart"></canvas>
         </div>
       </div>
 
-      <!-- Right Chart: R-squared -->
-      <div class="card">
+      <!-- Right Chart: R2 vs k (Current Method) -->
+      <div class="card" style="margin-bottom: 0;">
         <div class="card-header">
           <div class="card-title-group">
-            <h3><i class="fa-solid fa-arrow-trend-up" style="color: var(--accent-emerald);"></i> R-squared by Number of Features</h3>
-            <div class="card-subtitle">Higher is better. Peaks at k=2 (0.9474), drops at k=5.</div>
+            <h3><i class="fa-solid fa-arrow-trend-up" style="color: var(--accent-emerald);"></i> R² vs k（當前方法評估）</h3>
+            <div class="card-subtitle">比較 Test R² 與 Adjusted R²，檢驗過度配適（Overfitting）懲罰。</div>
           </div>
-          <span class="badge-tag badge-green" id="r2ChartBadge">Peak at k=2</span>
+          <span class="badge-tag badge-green" id="r2ChartBadge">R² Analysis</span>
         </div>
         <div class="chart-container">
           <canvas id="r2Chart"></canvas>
@@ -944,25 +993,25 @@
       </div>
     </div>
 
-    <!-- Mathematical Equation Card -->
+    <!-- Mathematical OLS Equation Card -->
     <div class="equation-card">
       <div class="equation-title">
-        <i class="fa-solid fa-square-root-variable"></i> Fitted OLS Regression Equation
+        <i class="fa-solid fa-square-root-variable"></i> Fitted OLS Regression Equation (迴歸方程式)
       </div>
-      <div class="equation-formula" id="equationBox">
-        Profit = 44,050.85 + 0.825 × (R&D Spend) + 0.024 × (Marketing Spend)
+      <div class="equation-formula" id="equationFormula">
+        計算中...
       </div>
     </div>
 
-    <!-- Interactive Grid: Live Calculator & Coefficients Table -->
+    <!-- Model Coefficients Table & Dynamic Live Predictor -->
     <div class="calc-grid">
       
-      <!-- Left: StatsUnlock-Style Coefficients Table -->
+      <!-- Left: Coefficients Table -->
       <div class="card">
         <div class="card-header">
           <div class="card-title-group">
-            <h3><i class="fa-solid fa-table" style="color: var(--primary);"></i> Model Coefficients & Statistical Tests</h3>
-            <div class="card-subtitle">Detailed parameter estimates, standard errors, t-statistics, and VIF multicollinearity.</div>
+            <h3><i class="fa-solid fa-table" style="color: var(--primary);"></i> 模型係數表與統計檢定 (Coefficients Table)</h3>
+            <div class="card-subtitle">包含估計值 (β)、標準誤 (Std. Error)、t 統計量、p-Value、95% 信賴區間與 VIF。</div>
           </div>
         </div>
         <div class="table-responsive">
@@ -985,65 +1034,28 @@
         </div>
       </div>
 
-      <!-- Right: Live Startup Profit Predictor Calculator -->
+      <!-- Right: Dynamic Live Predictor -->
       <div class="card">
         <div class="card-header">
           <div class="card-title-group">
-            <h3><i class="fa-solid fa-calculator" style="color: var(--accent-emerald);"></i> Live Profit Predictor</h3>
-            <div class="card-subtitle">Test predictions in real-time with the active model.</div>
+            <h3><i class="fa-solid fa-calculator" style="color: var(--accent-emerald);"></i> 動態即時預測器 (Live Predictor)</h3>
+            <div class="card-subtitle">依據當前選中的特徵自動生成控制項，即時試算預測結果。</div>
           </div>
           <span class="badge-tag badge-green"><i class="fa-solid fa-bolt"></i> Real-time</span>
         </div>
 
         <div>
-          <!-- R&D Spend -->
-          <div class="input-group">
-            <div class="input-label-row">
-              <span>R&D Spend ($)</span>
-              <span id="labelRD" style="color: var(--primary); font-family: 'Fira Code', monospace;">$100,000</span>
-            </div>
-            <input type="number" id="numRD" class="input-field" value="100000" min="0" max="250000" step="5000">
-            <input type="range" id="rangeRD" class="range-slider" value="100000" min="0" max="250000" step="5000">
+          <!-- Dynamically generated feature inputs -->
+          <div class="live-inputs-container" id="liveInputsContainer">
+            <!-- Inputs injected here -->
           </div>
 
-          <!-- Marketing Spend -->
-          <div class="input-group">
-            <div class="input-label-row">
-              <span>Marketing Spend ($)</span>
-              <span id="labelMkt" style="color: var(--primary); font-family: 'Fira Code', monospace;">$150,000</span>
-            </div>
-            <input type="number" id="numMkt" class="input-field" value="150000" min="0" max="500000" step="5000">
-            <input type="range" id="rangeMkt" class="range-slider" value="150000" min="0" max="500000" step="5000">
-          </div>
-
-          <!-- Administration -->
-          <div class="input-group" id="inputGroupAdmin">
-            <div class="input-label-row">
-              <span>Administration ($)</span>
-              <span id="labelAdmin" style="color: var(--slate-500); font-family: 'Fira Code', monospace;">$120,000</span>
-            </div>
-            <input type="number" id="numAdmin" class="input-field" value="120000" min="0" max="250000" step="5000">
-            <input type="range" id="rangeAdmin" class="range-slider" value="120000" min="0" max="250000" step="5000">
-          </div>
-
-          <!-- State -->
-          <div class="input-group" id="inputGroupState">
-            <div class="input-label-row">
-              <span>State Location</span>
-            </div>
-            <select id="selectState" class="input-field">
-              <option value="California">California (Reference)</option>
-              <option value="New York">New York</option>
-              <option value="Florida">Florida</option>
-            </select>
-          </div>
-
-          <!-- Output Box -->
-          <div class="prediction-output-box">
-            <div class="pred-label">Predicted Startup Profit</div>
-            <div class="pred-value" id="predProfitOutput">$130,154.20</div>
-            <div class="pred-formula-note" id="predFormulaNote">
-              Calculated using: β₀ + β₁(R&D) + β₂(Marketing)
+          <!-- Prediction Result Box -->
+          <div class="prediction-output-box" style="margin-top: 18px;">
+            <div class="pred-label" id="predLabelText">Predicted Value</div>
+            <div class="pred-value" id="predValueOutput">—</div>
+            <div class="pred-formula-note" id="predFormulaBreakdown">
+              方程式拆解計算中...
             </div>
           </div>
         </div>
@@ -1051,24 +1063,24 @@
 
     </div>
 
-    <!-- Residual Diagnostics & Top 10 Outliers -->
-    <div class="card" style="margin-top: 24px;">
+    <!-- Test Set Residuals & Outliers Diagnostic Table -->
+    <div class="card" style="margin-top: 22px;">
       <div class="card-header">
         <div class="card-title-group">
-          <h3><i class="fa-solid fa-magnifying-glass" style="color: var(--accent-amber);"></i> Test Set Residuals & Outliers Diagnostic</h3>
-          <div class="card-subtitle">Top absolute residuals on the out-of-sample test set (10 startups).</div>
+          <h3><i class="fa-solid fa-magnifying-glass" style="color: var(--accent-amber);"></i> 測試集殘差與離群值診斷 (Residuals & Outliers Analysis)</h3>
+          <div class="card-subtitle">依據絕對殘差大小排列測試集樣本（前 10 名），監控模型外差預測可靠度。</div>
         </div>
-        <span class="badge-tag badge-blue"><i class="fa-solid fa-filter"></i> Sorted by |Residual|</span>
+        <span class="badge-tag badge-blue"><i class="fa-solid fa-filter"></i> Top 10 |Residual|</span>
       </div>
       <div class="table-responsive">
         <table class="data-table">
           <thead>
             <tr>
               <th>Rank</th>
-              <th>Sample ID</th>
-              <th>Actual Profit</th>
-              <th>Predicted Profit</th>
-              <th>Residual ($)</th>
+              <th>Sample Index</th>
+              <th>Actual Value</th>
+              <th>Predicted Value</th>
+              <th>Residual (e = y - ŷ)</th>
               <th>Abs Error</th>
               <th>% Error</th>
               <th>Diagnostic Status</th>
@@ -1083,440 +1095,984 @@
 
   </div>
 
-  <!-- Footer & References -->
+  <!-- Footer & Academic References -->
   <footer>
     <div class="footer-inner">
-      <div style="max-width: 650px;">
-        <h4 style="font-size: 16px; margin-bottom: 8px; color: var(--slate-900);">
-          <i class="fa-solid fa-building-columns"></i> 50 Startups CRISP-DM Machine Learning Project
+      <div style="max-width: 680px;">
+        <h4 style="font-size: 14px; margin-bottom: 6px; color: var(--slate-900);">
+          <i class="fa-solid fa-graduation-cap"></i> Multiple Linear Regression & Feature Selection Explorer
         </h4>
-        <p style="line-height: 1.6; font-size: 13px;">
-          Developed for multiple linear regression model selection, parsimony validation, and statistical inference. Built with pure Vanilla HTML, CSS, JavaScript, and Chart.js.
+        <p style="line-height: 1.6; color: var(--slate-500); font-size: 12.5px;">
+          本系統整合 Lasso、Forward SFS、Backward / RFE、Exhaustive Best Subset 演算法。全端運算邏輯（包含高斯消去求逆、Lasso Coordinate Descent、特徵子集搜尋與推論統計檢定）均於瀏覽器純前端即時求解。
         </p>
       </div>
 
-      <div style="max-width: 550px;">
-        <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate-400); margin-bottom: 8px;">
-          References & Acknowledgments
+      <div style="max-width: 520px;">
+        <h4 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate-400); margin-bottom: 6px;">
+          驗證規範
         </h4>
-        <div class="ack-card">
-          <strong>Design & Layout Reference:</strong><br>
-          Statistical calculator style inspired by <a href="https://statsunlock.com/multiple-linear-regression-calculator/" target="_blank">StatsUnlock Multiple Linear Regression Calculator</a> (featuring ANOVA, coefficients, VIF, and APA reporting aesthetics).<br>
-          <strong>Dataset:</strong> <a href="https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv" target="_blank">50 Startups Dataset (Avik Jain 100-Days-Of-ML)</a>.<br>
-          <strong>Methodology:</strong> CRISP-DM (Cross-Industry Standard Process for Data Mining).
-        </div>
+        <p style="line-height: 1.6; color: var(--slate-500); font-size: 12.5px;">
+          切分標準：80% 訓練集 / 20% 測試集（固定種子 seed=42）。Test RMSE、Test R²、Test MAE 由獨立測試集計算；Adjusted R² 與係數檢定由訓練集計算。
+        </p>
       </div>
     </div>
   </footer>
 
+  <!-- Core In-Browser ML & Regression Computation Engine -->
   <script>
-    // State management
-    let currentAlgo = 'Lasso';
-    let currentK = 2; // Default to optimal sweet spot
+    // --- 1. Deterministic PRNG (Mulberry32) for reproducible 80/20 train/test split (seed=42) ---
+    function mulberry32(seed) {
+      return function() {
+        seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+        let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    // Default Embedded 50 Startups Dataset
+    const DEFAULT_STARTUPS_CSV = `R&D Spend,Administration,Marketing Spend,State,Profit
+165349.2,136897.8,471784.1,New York,192261.83
+162597.7,151377.59,443898.53,California,191792.06
+153441.51,101145.55,407934.54,Florida,191050.39
+144372.41,118671.85,383199.62,New York,182901.99
+142107.34,91391.77,366168.42,Florida,166187.94
+131876.9,99814.71,362861.36,New York,156991.12
+134615.46,147198.87,127716.82,California,156122.51
+130298.13,145530.06,323876.68,Florida,155752.6
+120542.52,148718.95,311613.29,New York,152211.77
+123334.88,108679.17,304981.62,California,149759.96
+101913.08,110594.11,229160.95,Florida,146121.95
+100671.96,91790.61,249744.55,California,144259.4
+93863.75,127320.38,249839.44,Florida,141585.52
+91992.39,135495.07,252664.93,California,134307.35
+119943.24,156547.42,256512.92,Florida,132602.65
+114523.61,122616.84,261776.23,New York,129917.04
+78013.11,121597.55,264346.06,California,126992.93
+94657.16,145077.58,282574.31,New York,125370.37
+91749.16,114175.79,294919.57,Florida,124266.9
+86419.7,153514.11,0,New York,122776.86
+76253.86,113867.3,298664.47,California,118474.03
+78389.47,153773.43,299737.29,New York,111313.02
+73994.56,122782.75,303319.26,Florida,110352.25
+67532.53,105751.03,304768.73,Florida,108733.99
+77044.01,99281.34,140574.81,New York,108552.04
+64664.71,139553.16,137962.62,California,107404.34
+75328.87,144135.98,134050.07,Florida,105733.54
+72107.6,127864.55,353183.81,New York,105008.31
+66051.52,182645.56,118148.2,Florida,103282.38
+65605.48,153032.06,107138.38,New York,101004.64
+61994.48,115641.28,91131.24,Florida,99937.59
+61136.38,152701.92,88218.23,New York,97483.56
+63408.86,129219.61,46085.25,California,97427.84
+55493.95,103057.49,214634.81,Florida,96778.92
+46426.07,157693.92,210797.67,California,96712.8
+46014.02,85047.44,205517.64,New York,96479.51
+28663.76,127056.21,201126.82,Florida,90708.19
+44069.95,51283.14,197029.42,California,89949.14
+20229.59,65947.93,185265.1,New York,81229.06
+38558.51,82982.09,174999.3,California,81005.76
+28754.33,118546.05,172795.67,California,78239.91
+27892.92,84710.77,164470.71,Florida,77798.83
+23640.93,96189.63,148001.11,California,71498.49
+15505.73,127382.3,35534.17,New York,69758.98
+22177.74,154806.14,28334.72,California,65200.33
+1000.23,124153.04,1903.93,New York,64926.08
+1315.46,115816.21,297114.46,Florida,49490.75
+0,135426.92,0,California,42559.73
+542.05,51743.15,0,New York,35673.41
+0,116983.8,45173.06,California,14681.4`;
+
+    // Simulated 80-sample Housing Data Generator
+    function generateSimulatedHousing() {
+      const r = mulberry32(7);
+      const g = () => Math.sqrt(-2 * Math.log(r() + 1e-12)) * Math.cos(6.2831853 * r());
+      let out = 'Rooms,Age,Distance,Crime,Tax,LowStatPct,Price\n';
+      for (let i = 0; i < 80; i++) {
+        const ro = 6 + g() * 0.7;
+        const ag = 50 + g() * 20;
+        const di = 5 + Math.abs(g()) * 3;
+        const cr = Math.abs(g()) * 4;
+        const tx = 400 + g() * 60;
+        const ls = 12 + g() * 5;
+        const p = 8 + 5.5 * ro - 0.45 * ls - 0.5 * di - 0.25 * cr + g() * 1.8;
+        out += [ro, ag, di, cr, tx, ls, p].map(v => v.toFixed(2)).join(',') + '\n';
+      }
+      return out.trim();
+    }
+
+    // --- 2. Mathematical Utilities ---
+    const mean = arr => arr.reduce((s, v) => s + v, 0) / arr.length;
+
+    // Gauss-Jordan matrix inversion
+    function invertMatrix(A) {
+      const n = A.length;
+      const M = A.map((r, i) => [...r, ...Array.from({length: n}, (_, j) => +(i === j))]);
+      for (let i = 0; i < n; i++) {
+        let pivot = i;
+        for (let r = i + 1; r < n; r++) {
+          if (Math.abs(M[r][i]) > Math.abs(M[pivot][i])) pivot = r;
+        }
+        [M[i], M[pivot]] = [M[pivot], M[i]];
+        const diag = M[i][i] || 1e-12;
+        for (let j = 0; j < 2 * n; j++) M[i][j] /= diag;
+        for (let r = 0; r < n; r++) {
+          if (r !== i) {
+            const factor = M[r][i];
+            if (factor) {
+              for (let j = 0; j < 2 * n; j++) M[r][j] -= factor * M[i][j];
+            }
+          }
+        }
+      }
+      return M.map(r => r.slice(n));
+    }
+
+    // OLS Regression Solver
+    function fitOLS(X, y, featureIndices) {
+      const k = featureIndices.length;
+      const my = mean(y);
+      const mu = featureIndices.map(j => mean(X.map(r => r[j])));
+      
+      const A = Array.from({length: k}, () => Array(k).fill(0));
+      const c = Array(k).fill(0);
+
+      X.forEach((r, i) => {
+        const d = featureIndices.map((j, a) => r[j] - mu[a]);
+        const err = y[i] - my;
+        for (let a = 0; a < k; a++) {
+          c[a] += d[a] * err;
+          for (let b = 0; b < k; b++) {
+            A[a][b] += d[a] * d[b];
+          }
+        }
+      });
+
+      // L2 Ridge jitter to guard against singular matrices
+      for (let a = 0; a < k; a++) A[a][a] += 1e-9 * (A[a][a] + 1);
+
+      const inv = invertMatrix(A);
+      const b = inv.map(r => r.reduce((s, v, j) => s + v * c[j], 0));
+      const b0 = my - b.reduce((s, v, a) => s + v * mu[a], 0);
+
+      const model = { idx: featureIndices, b, b0, inv };
+      model.rss = y.reduce((s, v, i) => s + Math.pow(v - predictRow(model, X[i]), 2), 0);
+      return model;
+    }
+
+    function predictRow(model, row) {
+      return model.b0 + model.idx.reduce((s, j, a) => s + model.b[a] * row[j], 0);
+    }
+
+    // Two-tailed p-value calculation via Gaussian / ERF approximation
+    function calculatePValue(tStat) {
+      const z = Math.abs(tStat);
+      if (!isFinite(z)) return 1.0;
+      const p = 0.3275911;
+      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429;
+      const t = 1.0 / (1.0 + p * (z / Math.SQRT2));
+      const erf = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-0.5 * z * z);
+      return Math.max(1e-16, Math.min(1.0, 1.0 - erf));
+    }
+
+    // --- 3. Feature Selection Algorithms ---
+
+    // Lasso L1 path coordinate descent ranking
+    function lassoRanking(X, y) {
+      const n = X.length, p = X[0].length;
+      const mu = [], sd = [];
+      for (let j = 0; j < p; j++) {
+        const col = X.map(r => r[j]);
+        mu[j] = mean(col);
+        sd[j] = Math.sqrt(mean(col.map(v => (v - mu[j]) ** 2))) || 1;
+      }
+      const Z = X.map(r => r.map((v, j) => (v - mu[j]) / sd[j]));
+      const my = mean(y);
+      const res = y.map(v => v - my);
+      const cr = Array.from({length: p}, (_, j) => Math.abs(Z.reduce((s, r, i) => s + r[j] * res[i], 0)) / n);
+      const lmax = Math.max(...cr);
+      
+      const b = Array(p).fill(0);
+      const order = [];
+
+      for (let g = 0; g < 120; g++) {
+        const lam = lmax * Math.pow(1e-4, g / 119);
+        for (let iter = 0; iter < 200; iter++) {
+          let maxDelta = 0;
+          for (let j = 0; j < p; j++) {
+            let rho = b[j];
+            for (let i = 0; i < n; i++) rho += Z[i][j] * res[i] / n;
+            const nb = Math.sign(rho) * Math.max(Math.abs(rho) - lam, 0);
+            const delta = nb - b[j];
+            if (delta) {
+              for (let i = 0; i < n; i++) res[i] -= delta * Z[i][j];
+              b[j] = nb;
+              maxDelta = Math.max(maxDelta, Math.abs(delta));
+            }
+          }
+          if (maxDelta < 1e-7) break;
+        }
+        b.forEach((v, j) => {
+          if (v !== 0 && !order.includes(j)) order.push(j);
+        });
+      }
+
+      // Append remaining by absolute correlation
+      const remaining = Array.from({length: p}, (_, j) => j)
+        .filter(j => !order.includes(j))
+        .sort((a, b) => cr[b] - cr[a]);
+      return order.concat(remaining);
+    }
+
+    // Select feature subsets for k = 1..p
+    function runFeatureSelection(method, X, y) {
+      const p = X[0].length;
+      const subsets = {};
+
+      if (method === 'lasso') {
+        const order = lassoRanking(X, y);
+        for (let k = 1; k <= p; k++) subsets[k] = order.slice(0, k);
+      } else if (method === 'forward') {
+        let current = [];
+        for (let k = 1; k <= p; k++) {
+          let best = null;
+          for (let j = 0; j < p; j++) {
+            if (!current.includes(j)) {
+              const trial = [...current, j];
+              const m = fitOLS(X, y, trial);
+              if (!best || m.rss < best.rss) best = { rss: m.rss, j };
+            }
+          }
+          current = [...current, best.j];
+          subsets[k] = current;
+        }
+      } else if (method === 'backward') {
+        let current = Array.from({length: p}, (_, j) => j);
+        subsets[p] = current;
+        for (let k = p - 1; k >= 1; k--) {
+          let best = null;
+          current.forEach(j => {
+            const trial = current.filter(v => v !== j);
+            const m = fitOLS(X, y, trial);
+            if (!best || m.rss < best.rss) best = { rss: m.rss, trial };
+          });
+          current = best.trial;
+          subsets[k] = current;
+        }
+      } else if (method === 'exhaustive') {
+        const best = {};
+        const total = 1 << p;
+        for (let mask = 1; mask < total; mask++) {
+          const idx = [];
+          for (let j = 0; j < p; j++) {
+            if ((mask >> j) & 1) idx.push(j);
+          }
+          const k = idx.length;
+          const m = fitOLS(X, y, idx);
+          if (!best[k] || m.rss < best[k].rss) best[k] = { rss: m.rss, idx };
+        }
+        for (let k = 1; k <= p; k++) subsets[k] = best[k].idx;
+      }
+      return subsets;
+    }
+
+    // --- 4. CSV Parsing & Dataset Preparation ---
+    function parseCSV(text) {
+      text = text.trim();
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+      if (lines.length < 4) throw new Error('資料筆數過少，至少需要欄名與 3 列以上資料。');
+
+      const candidates = [',', '\t', ';'];
+      const delim = candidates.reduce((best, curr) => 
+        lines[0].split(curr).length > lines[0].split(best).length ? curr : best
+      );
+
+      const clean = str => str.replace(/^["']|["']$/g, '').trim();
+      const headers = lines[0].split(delim).map(clean);
+      const rows = lines.slice(1).map(l => l.split(delim).map(clean));
+
+      return { headers, rows };
+    }
+
+    function isNumericColumn(rows, colIdx) {
+      return rows.some(r => r[colIdx] !== '' && !isNaN(parseFloat(r[colIdx]))) &&
+             rows.every(r => r[colIdx] === '' || !isNaN(parseFloat(r[colIdx])));
+    }
+
+    function buildDataset(raw, targetColIdx) {
+      const { headers, rows } = raw;
+      const targetName = headers[targetColIdx];
+      const cols = [];
+
+      headers.forEach((h, j) => {
+        if (j === targetColIdx) return;
+        if (isNumericColumn(rows, j)) {
+          cols.push({
+            name: h,
+            getValue: r => parseFloat(r[j]),
+            rawCol: j
+          });
+        } else {
+          const uniqueVals = [...new Set(rows.map(r => r[j]).filter(v => v !== ''))].sort();
+          if (uniqueVals.length > 1 && uniqueVals.length <= 10) {
+            uniqueVals.slice(1).forEach(v => {
+              cols.push({
+                name: `${h}_${v}`,
+                getValue: r => (r[j] === v ? 1.0 : 0.0),
+                rawCol: j
+              });
+            });
+          }
+        }
+      });
+
+      if (cols.length === 0) throw new Error('未能識別任何有效的預測變數欄位。');
+
+      const validRows = rows.filter(r => 
+        r[targetColIdx] !== '' && 
+        !isNaN(parseFloat(r[targetColIdx])) &&
+        cols.every(c => r[c.rawCol] !== '')
+      );
+
+      if (validRows.length < 5) throw new Error('有效樣本列數不足（需至少 5 列）。');
+
+      return {
+        featureNames: cols.map(c => c.name),
+        X: validRows.map(r => cols.map(c => c.getValue(r))),
+        y: validRows.map(r => parseFloat(r[targetColIdx])),
+        targetName
+      };
+    }
+
+    // --- 5. Global State & Analysis Engine ---
+    let rawData = null;
+    let preparedData = null;
+    let analysisResult = null;
     let rmseChartInstance = null;
     let r2ChartInstance = null;
 
-    const ALGO_COLORS = {
-      'Lasso': '#4f46e5',
-      'Forward SFS': '#ff7f0e',
-      'RFE': '#2ca02c',
-      'ElasticNet': '#d62728',
-      'Exhaustive': '#9467bd'
+    const ALGO_NAMES = {
+      lasso: 'Lasso (L1 Path)',
+      forward: 'Forward SFS',
+      backward: 'Backward / RFE',
+      exhaustive: 'Exhaustive Best Subset'
     };
 
-    // Initialize application
-    document.addEventListener('DOMContentLoaded', () => {
-      initCharts();
-      setupEventListeners();
-      updateDashboard();
-    });
+    // Distinct Modern Color Palette (No purple!)
+    const ALGO_COLORS = {
+      lasso: '#0284c7',       // Ocean Blue
+      forward: '#f97316',     // Coral Orange
+      backward: '#059669',    // Fresh Emerald
+      exhaustive: '#475569'   // Slate Graphite
+    };
 
-    function setupEventListeners() {
-      // Algorithm tabs
-      const tabs = document.querySelectorAll('#algoTabs .tab-btn');
-      tabs.forEach(btn => {
-        btn.addEventListener('click', () => {
-          tabs.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentAlgo = btn.dataset.algo;
-          updateDashboard();
-        });
-      });
+    function analyzeCurrentDataset() {
+      const targetIdx = parseInt(document.getElementById('targetSelect').value, 10);
+      preparedData = buildDataset(rawData, targetIdx);
 
-      // Feature count buttons
-      const kBtns = document.querySelectorAll('#kSelectorGroup .k-btn');
-      kBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          kBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentK = parseInt(btn.dataset.k);
-          updateDashboard();
-        });
-      });
+      const n = preparedData.y.length;
+      const p = preparedData.featureNames.length;
 
-      // Interactive Calculator Sliders & Number inputs
-      const syncInput = (sliderId, numId, labelId, prefix = '$') => {
-        const slider = document.getElementById(sliderId);
-        const num = document.getElementById(numId);
-        const label = document.getElementById(labelId);
+      // 80/20 train/test split with deterministic seed=42
+      const rng = mulberry32(42);
+      const indices = Array.from({length: n}, (_, i) => i);
+      for (let i = n - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
 
-        slider.addEventListener('input', (e) => {
-          num.value = e.target.value;
-          label.textContent = prefix + Number(e.target.value).toLocaleString();
-          calculateLivePrediction();
-        });
+      const nTest = Math.max(1, Math.round(n * 0.20));
+      const testIndices = indices.slice(0, nTest);
+      const trainIndices = indices.slice(nTest);
 
-        num.addEventListener('input', (e) => {
-          slider.value = e.target.value;
-          label.textContent = prefix + Number(e.target.value).toLocaleString();
-          calculateLivePrediction();
-        });
+      const Xtr = trainIndices.map(i => preparedData.X[i]);
+      const ytr = trainIndices.map(i => preparedData.y[i]);
+      const Xte = testIndices.map(i => preparedData.X[i]);
+      const yte = testIndices.map(i => preparedData.y[i]);
+
+      const availableMethods = ['lasso', 'forward', 'backward'];
+      if (p <= 12) availableMethods.push('exhaustive');
+
+      const exhaustiveOption = document.querySelector('#methodSelect option[value="exhaustive"]');
+      if (exhaustiveOption) {
+        exhaustiveOption.disabled = p > 12;
+        exhaustiveOption.textContent = p > 12 ? 'Exhaustive (特徵數 > 12 已停用)' : 'Exhaustive Best Subset (全子集搜尋)';
+      }
+
+      const curMethod = document.getElementById('methodSelect').value;
+      if (curMethod === 'exhaustive' && p > 12) {
+        document.getElementById('methodSelect').value = 'lasso';
+      }
+
+      analysisResult = {
+        n, p,
+        nTrain: trainIndices.length,
+        nTest,
+        trainIndices,
+        testIndices,
+        Xtr, ytr, Xte, yte,
+        modelsByMethod: {}
       };
 
-      syncInput('rangeRD', 'numRD', 'labelRD');
-      syncInput('rangeMkt', 'numMkt', 'labelMkt');
-      syncInput('rangeAdmin', 'numAdmin', 'labelAdmin');
-      document.getElementById('selectState').addEventListener('change', calculateLivePrediction);
-    }
+      availableMethods.forEach(method => {
+        const subsets = runFeatureSelection(method, Xtr, ytr);
+        analysisResult.modelsByMethod[method] = [];
 
-    function getActiveModelData() {
-      if (currentAlgo === 'ALL') {
-        return window.MODEL_DATA['Lasso'][currentK - 1];
-      }
-      return window.MODEL_DATA[currentAlgo][currentK - 1];
-    }
+        for (let k = 1; k <= p; k++) {
+          const mod = fitOLS(Xtr, ytr, subsets[k]);
 
-    function updateDashboard() {
-      const data = getActiveModelData();
-      if (!data) return;
-
-      // Update KPI Cards
-      document.getElementById('valRMSE').textContent = '$' + data.rmse.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      document.getElementById('valR2').textContent = data.r2.toFixed(4);
-      document.getElementById('valAdjR2').textContent = data.adj_r2 ? data.adj_r2.toFixed(4) : 'N/A';
-      document.getElementById('valMAE').textContent = '$' + data.mae.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      document.getElementById('valFStat').textContent = data.f_stat ? data.f_stat.toFixed(1) : '347.8';
-
-      // Sweet spot & Overfitting badges
-      const rmseBadge = document.getElementById('rmseBadge');
-      if (currentK === 2) {
-        rmseBadge.className = 'badge-tag badge-green';
-        rmseBadge.innerHTML = '<i class="fa-solid fa-award"></i> Optimal Sweet Spot';
-      } else if (currentK === 5) {
-        rmseBadge.className = 'badge-tag badge-amber';
-        rmseBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Overfitting Cliff';
-      } else {
-        rmseBadge.className = 'badge-tag badge-blue';
-        rmseBadge.innerHTML = `k = ${currentK}`;
-      }
-
-      // Feature chips
-      document.getElementById('featuresCount').textContent = data.features.length;
-      const chipsContainer = document.getElementById('featuresListChips');
-      chipsContainer.innerHTML = '';
-      data.features.forEach(feat => {
-        const chip = document.createElement('span');
-        chip.className = 'feature-chip';
-        chip.textContent = feat;
-        chipsContainer.appendChild(chip);
-      });
-
-      // Parsimony notice
-      const notice = document.getElementById('parsimonyNotice');
-      if (currentK === 2) {
-        notice.className = 'badge-tag badge-green';
-        notice.innerHTML = '<i class="fa-solid fa-star"></i> Occam\'s Razor: 2 features yield the minimum test RMSE ($8,198.80) and peak R² (0.9474).';
-      } else if (currentK === 5) {
-        notice.className = 'badge-tag badge-amber';
-        notice.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Overfitting Warning: Adding Administration & Location dummies spikes error to $9,137.99!';
-      } else {
-        notice.className = 'badge-tag badge-blue';
-        notice.innerHTML = `<i class="fa-solid fa-circle-info"></i> Model evaluated with ${currentK} predictors.`;
-      }
-
-      // Update Equation
-      updateEquation(data.coefficients);
-
-      // Update Coefficients Table
-      updateCoefficientsTable(data.coefficients);
-
-      // Update Outliers Table
-      updateOutliersTable(data.outliers);
-
-      // Update Charts
-      updateCharts();
-
-      // Recalculate Live Prediction
-      calculateLivePrediction();
-    }
-
-    function updateEquation(coefficients) {
-      const box = document.getElementById('equationBox');
-      const intercept = coefficients.find(c => c.feature.includes('Intercept'));
-      let parts = [];
-
-      if (intercept) {
-        parts.push(`<span class="eq-intercept">${intercept.coef.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`);
-      }
-
-      coefficients.forEach(c => {
-        if (c.feature.includes('Intercept')) return;
-        const sign = c.coef >= 0 ? '<span class="eq-pos">+</span>' : '<span class="eq-neg">-</span>';
-        const absVal = Math.abs(c.coef).toFixed(4);
-        parts.push(`${sign} ${absVal} × <span class="eq-var">(${c.feature})</span>`);
-      });
-
-      box.innerHTML = `<strong>Profit</strong> = ${parts.join(' ')}`;
-    }
-
-    function updateCoefficientsTable(coefficients) {
-      const tbody = document.getElementById('coefTableBody');
-      tbody.innerHTML = '';
-
-      coefficients.forEach(c => {
-        const tr = document.createElement('tr');
-        const isIntercept = c.feature.includes('Intercept');
-        const pBadge = c.pvalue < 0.05 
-          ? `<span class="badge-tag badge-green">${c.pvalue < 0.0001 ? '< 0.0001' : c.pvalue.toFixed(4)} <i class="fa-solid fa-check"></i></span>`
-          : `<span class="badge-tag badge-amber">${c.pvalue.toFixed(4)} (n.s.)</span>`;
-        
-        let vifDisplay = '-';
-        if (!isIntercept && c.vif !== null) {
-          if (c.vif < 5) {
-            vifDisplay = `<span class="badge-tag badge-green">${c.vif.toFixed(2)} (Safe)</span>`;
-          } else {
-            vifDisplay = `<span class="badge-tag badge-amber">${c.vif.toFixed(2)} (Collinear)</span>`;
+          let sseTest = 0, saeTest = 0;
+          const residualsTest = [];
+          for (let i = 0; i < nTest; i++) {
+            const pred = predictRow(mod, Xte[i]);
+            const actual = yte[i];
+            const res = actual - pred;
+            sseTest += res * res;
+            saeTest += Math.abs(res);
+            residualsTest.push({
+              sampleIndex: testIndices[i] + 1,
+              actual,
+              predicted: pred,
+              residual: res,
+              absError: Math.abs(res),
+              pctError: actual !== 0 ? (Math.abs(res) / Math.abs(actual)) * 100 : 0
+            });
           }
-        }
 
-        tr.innerHTML = `
-          <td><strong>${c.feature}</strong></td>
-          <td style="font-family: 'Fira Code', monospace; font-weight: 600;">${c.coef.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</td>
-          <td>${c.stderr.toFixed(4)}</td>
-          <td>${c.tstat.toFixed(3)}</td>
-          <td>${pBadge}</td>
-          <td style="font-size: 12px; color: var(--slate-600);">[${c.ci_lower.toFixed(2)}, ${c.ci_upper.toFixed(2)}]</td>
-          <td>${vifDisplay}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+          const yMeanTest = mean(yte);
+          const sstTest = yte.reduce((s, v) => s + (v - yMeanTest) ** 2, 0);
+          const r2Test = sstTest > 0 ? 1 - (sseTest / sstTest) : 0;
+          const rmseTest = Math.sqrt(sseTest / nTest);
+          const maeTest = saeTest / nTest;
 
-    function updateOutliersTable(outliers) {
-      const tbody = document.getElementById('outliersTableBody');
-      tbody.innerHTML = '';
+          const yMeanTrain = mean(ytr);
+          const sstTrain = ytr.reduce((s, v) => s + (v - yMeanTrain) ** 2, 0);
+          const r2Train = sstTrain > 0 ? 1 - (mod.rss / sstTrain) : 0;
+          const dfResidual = trainIndices.length - k - 1;
+          const adjR2 = dfResidual > 0 
+            ? 1 - (1 - r2Train) * (trainIndices.length - 1) / dfResidual 
+            : NaN;
 
-      outliers.forEach(o => {
-        const tr = document.createElement('tr');
-        const isHigh = o.abs_error > 10000;
-        const statusBadge = isHigh 
-          ? `<span class="badge-tag badge-amber"><span class="status-dot dot-amber"></span> High Residual</span>`
-          : `<span class="badge-tag badge-green"><span class="status-dot dot-green"></span> In Range</span>`;
+          const ssrTrain = sstTrain - mod.rss;
+          const fStat = (dfResidual > 0 && mod.rss > 0)
+            ? (ssrTrain / k) / (mod.rss / dfResidual)
+            : 0;
 
-        tr.innerHTML = `
-          <td style="font-weight: 700;">#${o.rank}</td>
-          <td>Startup #${o.index}</td>
-          <td style="font-family: 'Fira Code', monospace;">$${o.actual.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-          <td style="font-family: 'Fira Code', monospace;">$${o.predicted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-          <td style="color: ${o.residual >= 0 ? '#059669' : '#dc2626'}; font-weight: 600;">${o.residual >= 0 ? '+' : ''}$${o.residual.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-          <td>$${o.abs_error.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-          <td>${o.pct_error.toFixed(2)}%</td>
-          <td>${statusBadge}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+          const vifArray = [];
+          for (let a = 0; a < k; a++) {
+            if (k === 1) {
+              vifArray.push(1.0);
+            } else {
+              const otherIdx = subsets[k].filter((_, idx) => idx !== a);
+              const auxModel = fitOLS(Xtr, Xtr.map(r => r[subsets[k][a]]), otherIdx);
+              const targetCol = Xtr.map(r => r[subsets[k][a]]);
+              const sstCol = targetCol.reduce((s, v) => s + (v - mean(targetCol)) ** 2, 0);
+              const r2Col = sstCol > 0 ? 1 - auxModel.rss / sstCol : 0;
+              const vif = 1.0 / Math.max(0.001, 1.0 - r2Col);
+              vifArray.push(vif);
+            }
+          }
 
-    function calculateLivePrediction() {
-      const data = getActiveModelData();
-      if (!data) return;
+          residualsTest.sort((a, b) => b.absError - a.absError);
 
-      const rd = parseFloat(document.getElementById('numRD').value) || 0;
-      const mkt = parseFloat(document.getElementById('numMkt').value) || 0;
-      const admin = parseFloat(document.getElementById('numAdmin').value) || 0;
-      const state = document.getElementById('selectState').value;
-
-      let pred = 0;
-      let usedFeatures = [];
-
-      data.coefficients.forEach(c => {
-        if (c.feature.includes('Intercept')) {
-          pred += c.coef;
-        } else if (c.feature === 'R&D Spend') {
-          pred += c.coef * rd;
-          usedFeatures.push(`R&D: +$${(c.coef * rd).toFixed(0)}`);
-        } else if (c.feature === 'Marketing Spend') {
-          pred += c.coef * mkt;
-          usedFeatures.push(`Marketing: +$${(c.coef * mkt).toFixed(0)}`);
-        } else if (c.feature === 'Administration') {
-          pred += c.coef * admin;
-          usedFeatures.push(`Admin: ${(c.coef * admin >= 0 ? '+' : '')}$${(c.coef * admin).toFixed(0)}`);
-        } else if (c.feature === 'State_Florida' && state === 'Florida') {
-          pred += c.coef * 1;
-          usedFeatures.push(`Florida dummy: ${(c.coef >= 0 ? '+' : '')}$${c.coef.toFixed(0)}`);
-        } else if (c.feature === 'State_New York' && state === 'New York') {
-          pred += c.coef * 1;
-          usedFeatures.push(`NY dummy: ${(c.coef >= 0 ? '+' : '')}$${c.coef.toFixed(0)}`);
+          analysisResult.modelsByMethod[method].push({
+            k,
+            model: mod,
+            rmse: rmseTest,
+            mae: maeTest,
+            r2: r2Test,
+            adjR2,
+            fStat,
+            vif: vifArray,
+            outliers: residualsTest.slice(0, 10)
+          });
         }
       });
 
-      document.getElementById('predProfitOutput').textContent = '$' + pred.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      document.getElementById('predFormulaNote').innerHTML = `Active predictors: ${data.features.join(', ')}<br><span style="font-size: 11px; color: #cbd5e1;">(${usedFeatures.join(' | ')})</span>`;
+      renderUI(true);
     }
 
-    // Chart.js Setup
-    function initCharts() {
-      const ctxRMSE = document.getElementById('rmseChart').getContext('2d');
-      const ctxR2 = document.getElementById('r2Chart').getContext('2d');
+    function fmt(val) {
+      if (!isFinite(val) || isNaN(val)) return '—';
+      if (Math.abs(val) >= 1000) {
+        return val.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      }
+      return (+val.toPrecision(4)).toString();
+    }
 
-      const commonOptions = {
+    function renderUI(resetKSelector) {
+      if (!analysisResult) return;
+
+      const methodVal = document.getElementById('methodSelect').value;
+      const isCompareAll = methodVal === 'compare_all';
+      const activeMethodKey = isCompareAll ? 'lasso' : methodVal;
+      const methodResults = analysisResult.modelsByMethod[activeMethodKey];
+
+      const optimalK = methodResults.reduce((best, curr) => curr.rmse < best.rmse ? curr : best).k;
+
+      const kSelect = document.getElementById('kSelect');
+      const stepButtonsGroup = document.getElementById('kStepButtons');
+
+      if (resetKSelector || kSelect.options.length !== analysisResult.p) {
+        kSelect.innerHTML = '';
+        stepButtonsGroup.innerHTML = '';
+        for (let k = 1; k <= analysisResult.p; k++) {
+          const isSweet = (k === optimalK);
+          const optionText = `k = ${k}` + (isSweet ? ' ★ 最小 RMSE (Sweet Spot)' : '');
+          kSelect.add(new Option(optionText, k));
+
+          const btn = document.createElement('button');
+          btn.className = `k-btn ${isSweet ? 'sweet-spot' : ''}`;
+          btn.dataset.k = k;
+          btn.innerHTML = `k = ${k} ${isSweet ? '★' : ''}`;
+          btn.onclick = () => {
+            kSelect.value = k;
+            renderUI(false);
+          };
+          stepButtonsGroup.appendChild(btn);
+        }
+        kSelect.value = optimalK;
+      } else {
+        Array.from(kSelect.options).forEach((opt, idx) => {
+          const k = idx + 1;
+          const isSweet = (k === optimalK);
+          opt.text = `k = ${k}` + (isSweet ? ' ★ 最小 RMSE (Sweet Spot)' : '');
+        });
+      }
+
+      const activeK = parseInt(kSelect.value, 10);
+
+      document.querySelectorAll('#kStepButtons .k-btn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.k, 10) === activeK);
+      });
+
+      const currentEval = methodResults[activeK - 1];
+      const model = currentEval.model;
+      const activeFeatureNames = model.idx.map(j => preparedData.featureNames[j]);
+
+      // 1. Update Header Badges
+      const probVal = document.getElementById('probSelect').value;
+      let probLabel = '50 Startups';
+      if (probVal === 'housing_real') probLabel = 'Boston Housing (真實 506 筆)';
+      else if (probVal === 'housing_sim') probLabel = 'Housing Price (模擬 80 筆)';
+      else if (probVal === 'custom') probLabel = 'Custom Dataset';
+
+      document.getElementById('pillDataset').innerHTML = `<i class="fa-solid fa-database"></i> ${probLabel} (${analysisResult.n} 筆)`;
+      document.getElementById('pillSweetSpot').innerHTML = `<i class="fa-solid fa-star"></i> Sweet Spot: k=${optimalK} (RMSE: ${fmt(methodResults[optimalK - 1].rmse)})`;
+
+      document.getElementById('datasetInfo').innerHTML = 
+        `<i class="fa-solid fa-circle-check" style="color: var(--accent-emerald);"></i> 總筆數：${analysisResult.n}（訓練 ${analysisResult.nTrain} / 測試 ${analysisResult.nTest}） · 特徵數：${analysisResult.p} · 目標 (y)：<strong>${preparedData.targetName}</strong>`;
+      
+      const isSweet = (activeK === optimalK);
+      document.getElementById('parsimonyBadge').className = `badge-tag ${isSweet ? 'badge-green' : 'badge-amber'}`;
+      document.getElementById('parsimonyBadge').innerHTML = isSweet 
+        ? `<i class="fa-solid fa-star"></i> k = ${activeK} 達最小測試 RMSE (最佳平衡)`
+        : `<i class="fa-solid fa-info-circle"></i> 當前 k = ${activeK}（建議 k = ${optimalK} ★）`;
+
+      // 2. Metrics Ribbon
+      document.getElementById('valRMSE').textContent = fmt(currentEval.rmse);
+      document.getElementById('badgeRMSE').className = `badge-tag ${isSweet ? 'badge-green' : 'badge-blue'}`;
+      document.getElementById('badgeRMSE').innerHTML = isSweet ? `<i class="fa-solid fa-award"></i> Optimal ★` : `k = ${activeK}`;
+
+      document.getElementById('valR2').textContent = fmt(currentEval.r2);
+      document.getElementById('badgeR2').textContent = `${(Math.max(0, currentEval.r2) * 100).toFixed(1)}% Fit`;
+
+      document.getElementById('valAdjR2').textContent = fmt(currentEval.adjR2);
+      document.getElementById('valMAE').textContent = fmt(currentEval.mae);
+      document.getElementById('valFStat').textContent = fmt(currentEval.fStat);
+
+      // 3. Active Predictors Chips
+      document.getElementById('activeCount').textContent = activeK;
+      document.getElementById('featureChips').innerHTML = activeFeatureNames
+        .map(name => `<span class="feature-chip"><i class="fa-solid fa-check" style="font-size: 10px;"></i> ${name}</span>`)
+        .join('');
+
+      document.getElementById('parsimonyNotice').innerHTML = 
+        `<strong>${ALGO_NAMES[activeMethodKey]}</strong>：k=${optimalK} 時達到泛化誤差極小點。${activeK > optimalK ? '<span style="color:#d97706;"><i class="fa-solid fa-triangle-exclamation"></i> 特徵過多可能引起過擬合 (Overfitting)</span>' : ''}`;
+
+      // 4. Fitted OLS Equation
+      let eqStr = `<span style="color:var(--slate-900); font-weight:700;">${preparedData.targetName}</span> = ` +
+                  `<span style="color:#0369a1; font-weight:700;">${fmt(model.b0)}</span>`;
+      model.b.forEach((v, a) => {
+        const sign = v >= 0 ? '+' : '−';
+        eqStr += ` ${sign} <span style="color:#059669; font-weight:600;">${fmt(Math.abs(v))}</span> × (<span style="color:#0284c7; font-weight:600;">${activeFeatureNames[a]}</span>)`;
+      });
+      document.getElementById('equationFormula').innerHTML = eqStr;
+
+      // 5. Coefficients Table
+      const df = analysisResult.nTrain - activeK - 1;
+      const s2 = df > 0 ? model.rss / df : NaN;
+      let tableHtml = `
+        <tr>
+          <td><strong>Intercept (β₀)</strong></td>
+          <td>${fmt(model.b0)}</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+      `;
+
+      model.b.forEach((v, a) => {
+        const varInv = model.inv[a][a];
+        const se = (df > 0 && varInv > 0) ? Math.sqrt(s2 * varInv) : NaN;
+        const tStat = isFinite(se) && se > 0 ? v / se : NaN;
+        const pVal = isFinite(tStat) ? calculatePValue(tStat) : NaN;
+        const ciLow = isFinite(se) ? v - 1.96 * se : NaN;
+        const ciHigh = isFinite(se) ? v + 1.96 * se : NaN;
+        const vif = currentEval.vif[a];
+
+        let pBadge = '—';
+        if (isFinite(pVal)) {
+          if (pVal < 0.001) pBadge = `<span style="color:#059669; font-weight:700;">&lt; 0.001 ***</span>`;
+          else if (pVal < 0.05) pBadge = `<span style="color:#059669;">${pVal.toFixed(4)} *</span>`;
+          else pBadge = `${pVal.toFixed(4)}`;
+        }
+
+        tableHtml += `
+          <tr>
+            <td><span class="feature-chip">${activeFeatureNames[a]}</span></td>
+            <td><strong>${fmt(v)}</strong></td>
+            <td>${fmt(se)}</td>
+            <td>${fmt(tStat)}</td>
+            <td>${pBadge}</td>
+            <td style="font-family:'Fira Code', monospace; font-size:12px;">[${fmt(ciLow)}, ${fmt(ciHigh)}]</td>
+            <td>${fmt(vif)}</td>
+          </tr>
+        `;
+      });
+      document.getElementById('coefTableBody').innerHTML = tableHtml;
+
+      // 6. Test Set Residuals Diagnostic Table
+      let outlierHtml = '';
+      currentEval.outliers.forEach((o, rank) => {
+        let statusBadge = '<span class="status-dot dot-green"></span>Normal';
+        if (o.pctError > 20) {
+          statusBadge = '<span class="status-dot dot-red"></span>Outlier Alert';
+        } else if (o.pctError > 10) {
+          statusBadge = '<span class="status-dot dot-amber"></span>Moderate Dev.';
+        }
+
+        outlierHtml += `
+          <tr>
+            <td><strong>#${rank + 1}</strong></td>
+            <td>Row ${o.sampleIndex}</td>
+            <td>${fmt(o.actual)}</td>
+            <td>${fmt(o.predicted)}</td>
+            <td style="color:${o.residual >= 0 ? '#059669' : '#e11d48'}; font-weight:600;">${o.residual >= 0 ? '+' : ''}${fmt(o.residual)}</td>
+            <td>${fmt(o.absError)}</td>
+            <td>${o.pctError.toFixed(2)}%</td>
+            <td>${statusBadge}</td>
+          </tr>
+        `;
+      });
+      document.getElementById('outliersTableBody').innerHTML = outlierHtml;
+
+      // 7. Dynamic Live Predictor Inputs
+      renderLivePredictor(model, activeFeatureNames);
+
+      // 8. Render Charts
+      renderCharts(activeMethodKey, activeK, isCompareAll);
+    }
+
+    function renderLivePredictor(model, featureNames) {
+      const container = document.getElementById('liveInputsContainer');
+      container.innerHTML = '';
+
+      featureNames.forEach((featName, a) => {
+        const j = model.idx[a];
+        const allVals = preparedData.X.map(r => r[j]);
+        const minVal = Math.min(...allVals);
+        const maxVal = Math.max(...allVals);
+        const avgVal = mean(allVals);
+        const isDummy = minVal === 0 && maxVal === 1;
+
+        const group = document.createElement('div');
+        group.className = 'input-group';
+
+        const labelRow = document.createElement('div');
+        labelRow.className = 'input-label-row';
+        labelRow.innerHTML = `
+          <span>${featName}</span>
+          <span id="liveVal_${a}" style="color:var(--primary); font-family:'Fira Code', monospace;">${fmt(avgVal)}</span>
+        `;
+        group.appendChild(labelRow);
+
+        if (isDummy) {
+          const select = document.createElement('select');
+          select.className = 'input-field';
+          select.id = `input_${a}`;
+          select.innerHTML = `<option value="0">0 (否 / Reference)</option><option value="1">1 (是 / Active)</option>`;
+          select.value = Math.round(avgVal);
+          select.onchange = () => updateLivePrediction(model, featureNames);
+          group.appendChild(select);
+        } else {
+          const step = (maxVal - minVal) > 10 ? Math.max(1, Math.round((maxVal - minVal) / 100)) : (maxVal - minVal) / 100;
+          const numInput = document.createElement('input');
+          numInput.type = 'number';
+          numInput.className = 'input-field';
+          numInput.id = `input_${a}`;
+          numInput.value = avgVal.toFixed(2);
+          numInput.step = step;
+
+          const rangeInput = document.createElement('input');
+          rangeInput.type = 'range';
+          rangeInput.className = 'range-slider';
+          rangeInput.id = `range_${a}`;
+          rangeInput.min = minVal;
+          rangeInput.max = maxVal;
+          rangeInput.step = step;
+          rangeInput.value = avgVal;
+
+          numInput.oninput = () => {
+            rangeInput.value = numInput.value;
+            updateLivePrediction(model, featureNames);
+          };
+          rangeInput.oninput = () => {
+            numInput.value = rangeInput.value;
+            updateLivePrediction(model, featureNames);
+          };
+
+          group.appendChild(numInput);
+          group.appendChild(rangeInput);
+        }
+
+        container.appendChild(group);
+      });
+
+      updateLivePrediction(model, featureNames);
+    }
+
+    function updateLivePrediction(model, featureNames) {
+      let predicted = model.b0;
+      const breakdown = [`Intercept: ${fmt(model.b0)}`];
+
+      featureNames.forEach((featName, a) => {
+        const inputElem = document.getElementById(`input_${a}`);
+        const liveValElem = document.getElementById(`liveVal_${a}`);
+        const val = parseFloat(inputElem ? inputElem.value : 0) || 0;
+        if (liveValElem) liveValElem.textContent = fmt(val);
+
+        const contribution = model.b[a] * val;
+        predicted += contribution;
+        breakdown.push(`${featName}: ${(contribution >= 0 ? '+' : '')}${fmt(contribution)}`);
+      });
+
+      document.getElementById('predLabelText').textContent = `Predicted ${preparedData.targetName}`;
+      document.getElementById('predValueOutput').textContent = fmt(predicted);
+      document.getElementById('predFormulaBreakdown').innerHTML = 
+        `Active Features (${featureNames.length}): ${featureNames.join(', ')}<br><span style="font-size:11px; color:#94a3b8;">(${breakdown.join(' | ')})</span>`;
+    }
+
+    function renderCharts(activeMethodKey, activeK, isCompareAll) {
+      const labels = Array.from({length: analysisResult.p}, (_, i) => `k=${i + 1}`);
+      const methodsToRender = isCompareAll 
+        ? Object.keys(analysisResult.modelsByMethod)
+        : [activeMethodKey];
+
+      document.getElementById('rmseChartBadge').textContent = isCompareAll 
+        ? 'Comparing All 4 Methods' 
+        : ALGO_NAMES[activeMethodKey];
+
+      const datasetsRMSE = methodsToRender.map(mKey => {
+        const series = analysisResult.modelsByMethod[mKey];
+        const color = ALGO_COLORS[mKey] || '#0284c7';
+        const isSelectedMethod = (mKey === activeMethodKey);
+
+        return {
+          label: ALGO_NAMES[mKey],
+          data: series.map(item => item.rmse),
+          borderColor: color,
+          backgroundColor: color,
+          borderWidth: isSelectedMethod ? 3 : 1.5,
+          borderDash: isCompareAll && !isSelectedMethod ? [4, 4] : [],
+          tension: 0.2,
+          pointRadius: series.map(item => item.k === activeK ? 7 : 4),
+          pointHoverRadius: 8,
+          pointBackgroundColor: series.map(item => item.k === activeK ? '#10b981' : color)
+        };
+      });
+
+      const curSeries = analysisResult.modelsByMethod[activeMethodKey];
+      const datasetsR2 = [
+        {
+          label: 'Test R²',
+          data: curSeries.map(item => item.r2),
+          borderColor: '#0284c7',
+          backgroundColor: '#0284c7',
+          borderWidth: 2.5,
+          tension: 0.2,
+          pointRadius: curSeries.map(item => item.k === activeK ? 7 : 4),
+          pointBackgroundColor: curSeries.map(item => item.k === activeK ? '#10b981' : '#0284c7')
+        },
+        {
+          label: 'Adjusted R² (Train)',
+          data: curSeries.map(item => item.adjR2),
+          borderColor: '#059669',
+          backgroundColor: '#059669',
+          borderWidth: 2,
+          borderDash: [5, 4],
+          tension: 0.2,
+          pointRadius: curSeries.map(item => item.k === activeK ? 6 : 3)
+        }
+      ];
+
+      const chartOptions = (yTitle) => ({
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            display: false,
-            position: 'top'
+            display: isCompareAll || yTitle.includes('R²'),
+            position: 'top',
+            labels: { boxWidth: 14, font: { family: 'Inter', size: 11 } }
           },
           tooltip: {
-            backgroundColor: 'rgba(15, 23, 42, 0.92)',
-            titleFont: { family: 'Outfit', size: 13 },
-            bodyFont: { family: 'Inter', size: 12 },
-            padding: 12,
-            cornerRadius: 8,
+            backgroundColor: 'rgba(15, 23, 42, 0.94)',
+            padding: 10,
+            titleFont: { family: 'Outfit', size: 12 },
+            bodyFont: { family: 'Inter', size: 11 },
             callbacks: {
-              afterLabel: function(context) {
-                const k = context.dataIndex + 1;
-                const algo = currentAlgo === 'ALL' ? context.dataset.label : currentAlgo;
-                const modelItem = window.MODEL_DATA[algo][k - 1];
-                return 'Features: ' + modelItem.features.join(', ');
+              afterLabel: function(ctx) {
+                const k = ctx.dataIndex + 1;
+                const mKey = isCompareAll ? methodsToRender[ctx.datasetIndex] : activeMethodKey;
+                const item = analysisResult.modelsByMethod[mKey][k - 1];
+                const featNames = item.model.idx.map(j => preparedData.featureNames[j]);
+                return 'Features: ' + featNames.join(', ');
               }
             }
           }
         },
         scales: {
           x: {
-            title: {
-              display: true,
-              text: 'Number of Features (k)',
-              font: { family: 'Inter', weight: 600, size: 12 }
-            },
-            grid: { color: '#f1f5f9' }
+            grid: { color: '#f1f5f9' },
+            ticks: { font: { family: 'Inter', size: 11 } }
           },
           y: {
-            grid: { color: '#f1f5f9' }
+            title: { display: true, text: yTitle, font: { family: 'Inter', weight: 600, size: 11 } },
+            grid: { color: '#f1f5f9' },
+            ticks: { font: { family: 'Inter', size: 11 } }
           }
         },
         onClick: (e, elements) => {
           if (elements.length > 0) {
-            const index = elements[0].index;
-            const newK = index + 1;
-            const kBtns = document.querySelectorAll('#kSelectorGroup .k-btn');
-            kBtns.forEach(b => {
-              if (parseInt(b.dataset.k) === newK) {
-                b.click();
-              }
-            });
+            const clickedK = elements[0].index + 1;
+            document.getElementById('kSelect').value = clickedK;
+            renderUI(false);
           }
         }
+      });
+
+      if (rmseChartInstance) rmseChartInstance.destroy();
+      if (r2ChartInstance) r2ChartInstance.destroy();
+
+      rmseChartInstance = new Chart(document.getElementById('rmseChart'), {
+        type: 'line',
+        data: { labels, datasets: datasetsRMSE },
+        options: chartOptions('Test RMSE (越小越佳)')
+      });
+
+      r2ChartInstance = new Chart(document.getElementById('r2Chart'), {
+        type: 'line',
+        data: { labels, datasets: datasetsR2 },
+        options: chartOptions('R² Score (越高越佳)')
+      });
+    }
+
+    // --- 6. Problem Switching & Initialization ---
+    function loadDatasetText(csvText, preferredTarget) {
+      try {
+        document.getElementById('errorBox').style.display = 'none';
+        rawData = parseCSV(csvText);
+
+        const targetSelect = document.getElementById('targetSelect');
+        targetSelect.innerHTML = '';
+        let lastNumericIdx = -1;
+
+        rawData.headers.forEach((h, j) => {
+          if (isNumericColumn(rawData.rows, j)) {
+            targetSelect.add(new Option(h, j));
+            lastNumericIdx = j;
+          }
+        });
+
+        if (targetSelect.options.length === 0) {
+          throw new Error('未在資料集中找到可作為目標變數的數值欄位。');
+        }
+
+        const matchIdx = rawData.headers.findIndex(h => h.toLowerCase() === (preferredTarget || '').toLowerCase());
+        targetSelect.value = (matchIdx >= 0) ? matchIdx : lastNumericIdx;
+
+        analyzeCurrentDataset();
+      } catch (err) {
+        console.error(err);
+        const errBox = document.getElementById('errorBox');
+        errBox.textContent = '⚠ 載入失敗：' + err.message;
+        errBox.style.display = 'block';
+      }
+    }
+
+    function onProblemChange() {
+      const prob = document.getElementById('probSelect').value;
+      const customBox = document.getElementById('customBox');
+      customBox.style.display = (prob === 'custom') ? 'block' : 'none';
+
+      if (prob === 'startups') {
+        const csv = window.STARTUPS_CSV || DEFAULT_STARTUPS_CSV;
+        document.getElementById('csvInput').value = csv;
+        loadDatasetText(csv, 'Profit');
+      } else if (prob === 'housing_real') {
+        const csv = window.BOSTON_HOUSING_CSV || generateSimulatedHousing();
+        document.getElementById('csvInput').value = csv;
+        loadDatasetText(csv, 'medv');
+      } else if (prob === 'housing_sim') {
+        const csv = generateSimulatedHousing();
+        document.getElementById('csvInput').value = csv;
+        loadDatasetText(csv, 'Price');
+      } else if (prob === 'custom') {
+        document.getElementById('datasetInfo').textContent = '請貼上或上傳自訂 CSV，並點擊「載入並開始即時分析」。';
+      }
+    }
+
+    // --- 7. Event Listeners ---
+    document.getElementById('probSelect').onchange = onProblemChange;
+
+    document.getElementById('targetSelect').onchange = () => {
+      try {
+        analyzeCurrentDataset();
+      } catch (err) {
+        document.getElementById('errorBox').textContent = '⚠ ' + err.message;
+        document.getElementById('errorBox').style.display = 'block';
+      }
+    };
+
+    document.getElementById('methodSelect').onchange = () => {
+      if (analysisResult) renderUI(true);
+    };
+
+    document.getElementById('kSelect').onchange = () => {
+      if (analysisResult) renderUI(false);
+    };
+
+    document.getElementById('btnLoadCustom').onclick = () => {
+      loadDatasetText(document.getElementById('csvInput').value);
+    };
+
+    document.getElementById('fileInput').onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.getElementById('csvInput').value = reader.result;
+        loadDatasetText(reader.result);
       };
+      reader.readAsText(file);
+    };
 
-      // RMSE Chart Instance
-      rmseChartInstance = new Chart(ctxRMSE, {
-        type: 'line',
-        data: { labels: ['1', '2', '3', '4', '5'], datasets: [] },
-        options: {
-          ...commonOptions,
-          scales: {
-            ...commonOptions.scales,
-            y: {
-              ...commonOptions.scales.y,
-              title: {
-                display: true,
-                text: 'RMSE ($) (Lower is Better)',
-                font: { family: 'Inter', weight: 600, size: 12 }
-              }
-            }
-          }
-        }
-      });
-
-      // R2 Chart Instance
-      r2ChartInstance = new Chart(ctxR2, {
-        type: 'line',
-        data: { labels: ['1', '2', '3', '4', '5'], datasets: [] },
-        options: {
-          ...commonOptions,
-          scales: {
-            ...commonOptions.scales,
-            y: {
-              ...commonOptions.scales.y,
-              title: {
-                display: true,
-                text: 'R-squared (Higher is Better)',
-                font: { family: 'Inter', weight: 600, size: 12 }
-              }
-            }
-          }
-        }
-      });
-    }
-
-    function updateCharts() {
-      const isCompareAll = currentAlgo === 'ALL';
-      document.getElementById('rmseChartBadge').textContent = isCompareAll ? 'Comparing 5 Methods' : currentAlgo;
-      
-      let datasetsRMSE = [];
-      let datasetsR2 = [];
-
-      const algosToRender = isCompareAll 
-        ? ['Lasso', 'Forward SFS', 'RFE', 'ElasticNet', 'Exhaustive']
-        : [currentAlgo];
-
-      algosToRender.forEach((algo, idx) => {
-        const algoData = window.MODEL_DATA[algo];
-        const rmsePoints = algoData.map(item => item.rmse);
-        const r2Points = algoData.map(item => item.r2);
-        const color = ALGO_COLORS[algo] || '#4f46e5';
-
-        // Point styles
-        const pointRadii = algoData.map(item => item.k === currentK ? 7 : (item.k === 2 ? 6 : 4));
-        const pointColors = algoData.map(item => item.k === 2 ? '#10b981' : color);
-
-        datasetsRMSE.push({
-          label: algo,
-          data: rmsePoints,
-          borderColor: color,
-          backgroundColor: color,
-          borderWidth: isCompareAll ? 2 : 2.5,
-          tension: 0.1,
-          pointRadius: pointRadii,
-          pointBackgroundColor: pointColors,
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 2
-        });
-
-        datasetsR2.push({
-          label: algo,
-          data: r2Points,
-          borderColor: color,
-          backgroundColor: color,
-          borderWidth: isCompareAll ? 2 : 2.5,
-          tension: 0.1,
-          pointRadius: pointRadii,
-          pointBackgroundColor: pointColors,
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 2
-        });
-      });
-
-      rmseChartInstance.data.datasets = datasetsRMSE;
-      rmseChartInstance.options.plugins.legend.display = isCompareAll;
-      rmseChartInstance.update();
-
-      r2ChartInstance.data.datasets = datasetsR2;
-      r2ChartInstance.options.plugins.legend.display = isCompareAll;
-      r2ChartInstance.update();
-    }
+    // Initial load
+    window.addEventListener('DOMContentLoaded', () => {
+      onProblemChange();
+    });
   </script>
 </body>
 </html>
