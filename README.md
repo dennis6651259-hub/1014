@@ -8,8 +8,8 @@ This project evaluates **Multiple Linear Regression (OLS)** against **5 distinct
 
 ## 🌐 Live Demo & Interactive Web Application
 
-🐙 **GitHub Repository**: **[https://github.com/huanchen1107/AIoT-DIC2-MultipleLR](https://github.com/huanchen1107/AIoT-DIC2-MultipleLR)**  
-🔗 **Live Demo**: **[https://huanchen1107.github.io/AIoT-DIC2-MultipleLR/](https://huanchen1107.github.io/AIoT-DIC2-MultipleLR/)**
+🐙 **GitHub Repository**: **[https://github.com/dennis6651259-hub/1014](https://github.com/dennis6651259-hub/1014)**  
+🔗 **Live Demo**: **[https://dennis6651259-hub.github.io/1014/](https://dennis6651259-hub.github.io/1014/)**
 
 ![50 Startups Interactive Regression & Feature Selection Explorer](dashboard_demo.png)
 
@@ -109,7 +109,7 @@ All 5 methods were benchmarked across $k=1 \dots 5$ features on the out-of-sampl
 ## ☁️ Deployment
 
 ### 1. GitHub Pages (Active)
-🔗 **[https://huanchen1107.github.io/AIoT-DIC2-MultipleLR/](https://huanchen1107.github.io/AIoT-DIC2-MultipleLR/)**
+🔗 **[https://dennis6651259-hub.github.io/1014/](https://dennis6651259-hub.github.io/1014/)**
 Automated deployment via `.github/workflows/pages.yml`.
 
 ### 2. Vercel
